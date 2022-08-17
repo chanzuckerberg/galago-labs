@@ -9,8 +9,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Verify checkout
+      - name: Verify npm not installed
         run: |
-          echo Checking checkout...
-          ls -al
-          cat README.md
+          echo Checking npm status...
+          npm --version
+          echo huh, made it

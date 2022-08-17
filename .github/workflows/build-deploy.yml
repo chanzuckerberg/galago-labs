@@ -8,4 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo Hello World
+          echo Okay that blows my mind
+          echo you can edit the running workflow from a branch

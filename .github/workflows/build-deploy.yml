@@ -14,8 +14,19 @@ jobs:
         with:
           # Just picked what we've been using in local dev work
           node-version: 18
-      - name: Check NPM status
+      - name: Install node modules
+        # `npm ci` tells npm to install matching against package-lock file
+        run: npm ci
+      - name: VOODOO verify node modules install
         run: |
-          echo Checking npm status...
-          npm --version
-          echo well thats good
+          echo checking node install...
+          ls -al
+          ls -al node_modules
+      - name: Build app
+        run: npm run build
+      - name: VOODOO verify build ran
+        run: |
+          echo checking build...
+          ls -al
+          cd dist
+          ls -al

@@ -7,6 +7,10 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo Okay that blows my mind
-          echo you can edit the running workflow from a branch
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Verify checkout
+        run: |
+          echo Checking checkout...
+          ls -al
+          cat README.md

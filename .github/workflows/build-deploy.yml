@@ -9,8 +9,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Verify npm not installed
+      - name: Setup Node/NPM
+        uses: actions/setup-node@v3
+        with:
+          # Just picked what we've been using in local dev work
+          node-version: 18
+      - name: Check NPM status
         run: |
           echo Checking npm status...
           npm --version
-          echo huh, made it
+          echo well that's good

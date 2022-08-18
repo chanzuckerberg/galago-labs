@@ -16,8 +16,8 @@ ReactDOM.render(
       <ThemeProvider theme={Theme}>
         <BrowserRouter>
           <Routes>
-            <Route path="galago-labs/" element={<LandingPageRoute />} />
-            <Route path="galago-labs/app" element={<App />} />
+            <Route path="/galago-labs/" element={<LandingPageRoute />} />
+            <Route path="/galago-labs/app" element={<App />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

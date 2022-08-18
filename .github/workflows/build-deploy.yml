@@ -14,15 +14,6 @@ jobs:
         with:
           # Just picked what we've been using in local dev work
           node-version: 18
-      - name: VOODOO verify failure stops script
-        run: |
-          echo gonna fail now
-          exit 1
-          echo this will not be written
-      - name: VOODOO check on failure
-        run: |
-          echo the next step after failure
-          echo did not echo right right
       - name: Install node modules
         # `npm ci` tells npm to install matching against package-lock file
         run: npm ci
@@ -40,3 +31,9 @@ jobs:
           ls -al
           cd dist
           ls -al
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          # By default, deploys branch to `gh-pages`, but let's be explicit
+          branch: gh-pages

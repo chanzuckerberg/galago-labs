@@ -2,7 +2,8 @@ import Header from "../components/header";
 import LandingPage from "../components/landingPage";
 
 export const LandingPageRoute = () => {
-  console.log("heyx3, dropped base path final slash"); // REMOVE
+  console.log("heyx4, base path has ending slash"); // REMOVE
+  console.log("But now the routes have no base path embedded"); // REMOVE
   console.log("impor meta env MODE", import.meta.env.MODE); // REMOVE
   console.log("impor meta env BASE_URL", import.meta.env.BASE_URL); // REMOVE
   console.log("impor meta env PROD", import.meta.env.PROD); // REMOVE

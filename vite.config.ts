@@ -16,9 +16,9 @@ const STAGING_KEYWORD = "staging"; // Running in galago-labs
  */
 export default defineConfig(({mode}) => {
   console.log("vite build mode:", mode); // REMOVE
-  let basePath = "/galago";
+  let basePath = "/galago/";
   if (mode.toLowerCase() === STAGING_KEYWORD) {
-    basePath = "/galago-labs";
+    basePath = "/galago-labs/";
   }
   return {
     plugins: [react()],

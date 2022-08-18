@@ -17,20 +17,10 @@ jobs:
       - name: Install node modules
         # `npm ci` tells npm to install matching against package-lock file
         run: npm ci
-      - name: VOODOO verify node modules install
-        run: |
-          echo checking node install...
-          ls -al
-          ls -al node_modules
       - name: Build app
         # As configured in Aug 2022, `vite build` outputs to `dist` folder.
-        run: npm run build
-      - name: VOODOO verify build ran
-        run: |
-          echo checking build...
-          ls -al
-          cd dist
-          ls -al
+        # VOODOO TODO convert `staging` to being a pipeline var, not hardcoded
+        run: npm run build -- --mode staging
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

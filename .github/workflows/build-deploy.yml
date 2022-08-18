@@ -14,6 +14,15 @@ jobs:
         with:
           # Just picked what we've been using in local dev work
           node-version: 18
+      - name: VOODOO verify failure stops script
+        run: |
+          echo gonna fail now
+          exit 1
+          echo this will not be written
+      - name: VOODOO check on failure
+        run: |
+          echo the next step after failure
+          echo did not echo right right
       - name: Install node modules
         # `npm ci` tells npm to install matching against package-lock file
         run: npm ci
@@ -23,6 +32,7 @@ jobs:
           ls -al
           ls -al node_modules
       - name: Build app
+        # As configured in Aug 2022, `vite build` outputs to `dist` folder.
         run: npm run build
       - name: VOODOO verify build ran
         run: |

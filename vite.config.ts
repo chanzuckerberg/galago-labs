@@ -12,7 +12,11 @@ const STAGING_KEYWORD = "staging"; // Running in galago-labs
  * desired) and returns the config after any logic is done.
  *
  * This is necessary because our staging and prod versions of the app get
- * served from different URLs so we inject that here.
+ * served from different URLs so we inject that here. We are relying on the
+ * fact that we explicitly know the names of the Prod and Staging repos. If
+ * we needed to truly generalize, would want to set from some kind of real
+ * env var that GitHub Action passes by introspecting the repo name. But
+ * also possible that having custom domain names will make all this unneeded.
  */
 export default defineConfig(({mode}) => {
   console.log("vite build mode:", mode); // REMOVE

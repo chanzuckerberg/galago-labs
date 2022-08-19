@@ -19,7 +19,6 @@ const STAGING_KEYWORD = "staging"; // Running in galago-labs
  * also possible that having custom domain names will make all this unneeded.
  */
 export default defineConfig(({mode}) => {
-  console.log("vite build mode:", mode); // REMOVE
   let basePath = "/galago/";
   if (mode.toLowerCase() === STAGING_KEYWORD) {
     basePath = "/galago-labs/";

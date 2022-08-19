@@ -37,8 +37,6 @@ const BASE_WITHOUT_TRAILING_SLASH = BASE_URL.slice(0, -1);
  * and we can just go to directly using our ROUTES values in app.
  */
 function getRoutePath(route: ROUTES) {
-  console.log("BASE_WITHOUT_TRAILING_SLASH", BASE_WITHOUT_TRAILING_SLASH); // REMOVE
-  console.log("result", BASE_WITHOUT_TRAILING_SLASH + route); // REMOVE
   return BASE_WITHOUT_TRAILING_SLASH + route;
 }
 

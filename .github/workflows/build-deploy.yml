@@ -18,19 +18,11 @@ jobs:
         # `npm ci` tells npm to install matching against package-lock file
         run: npm ci
       - name: Build app
-        # As configured in Aug 2022, `vite build` outputs to `dist` folder.
-        # VOODOO TODO convert `staging` to being a pipeline var, not hardcoded
-        run: npm run build -- --mode staging
-      - name: Test pulling in secrets
         env:
-          GALAGO_HELLO_WORLD: ${{ secrets.GALAGO_HELLO_WORLD }}
-        run: |
-          echo will it show up? or redact?
-          echo $GALAGO_HELLO_WORLD
-          cd dist
-          ls -al
-          echo $GALAGO_HELLO_WORLD > hello.txt
-          echo well I think we did it we shall see
+          # This is not really a "secret", just a way to get per-repo env vars
+          GALAGO_VITE_BUILD_MODE: ${{ secrets.GALAGO_VITE_BUILD_MODE }}
+        # As configured in Aug 2022, `vite build` outputs to `dist` folder.
+        run: npm run build -- --mode $GALAGO_VITE_BUILD_MODE
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

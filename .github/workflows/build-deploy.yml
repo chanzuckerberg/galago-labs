@@ -25,6 +25,16 @@ jobs:
           GALAGO_VITE_BUILD_MODE: ${{ secrets.GALAGO_VITE_BUILD_MODE }}
         # As configured in Aug 2022, `vite build` outputs to `dist` folder.
         run: npm run build -- --mode $GALAGO_VITE_BUILD_MODE
+      - name: Quick check of multi-line secrets
+        env:
+          GALAGO_MULTI_LINE_TEST: ${{ secrets.GALAGO_MULTI_LINE_TEST }}
+        run: |
+          echo trying to drop in value
+          cd dist
+          ls -al
+          echo $GALAGO_MULTI_LINE_TEST > .env
+          echo "$GALAGO_MULTI_LINE_TEST" > .otherenv
+          echo let us see the results
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

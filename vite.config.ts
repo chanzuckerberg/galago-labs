@@ -18,13 +18,6 @@ const STAGING_KEYWORD = "staging"; // Running in galago-labs
  * env var that GitHub Action passes by introspecting the repo name. But
  * also possible that having custom domain names will make all this unneeded.
  */
-export default defineConfig(({mode}) => {
-  let basePath = "/galago/";
-  if (mode.toLowerCase() === STAGING_KEYWORD) {
-    basePath = "/galago-labs/";
-  }
-  return {
-    plugins: [react()],
-    base: basePath,
-  };
+export default defineConfig({
+  plugins: [react()],
 });

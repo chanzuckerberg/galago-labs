@@ -2,8 +2,6 @@ import Header from "../components/header";
 import LandingPage from "../components/landingPage";
 
 export const LandingPageRoute = () => {
-  console.log("Please be a prod build"); // REMOVE
-  console.log("import metaXenvXMODE", import.meta.env.MODE); // REMOVE
   return (
     <div>
       <Header />

@@ -13,7 +13,8 @@ import react from "@vitejs/plugin-react";
  * However, when we were serving the app via GitHub Pages but /not/ using a
  * custom domain, it was necessary to dynamically configure the `base` path
  * part of the URL. If we ever have to go back to this approach, look at
- * commit SHA `0c4f251c` for this file and src/routes/index.ts.
+ * commit SHA `0c4f251c` for this file, `src/routes/index.ts`, and the GitHub
+ * workflow itself `.github/workflows/build-deployment.yml`.
  */
 export default defineConfig({
   plugins: [react()],

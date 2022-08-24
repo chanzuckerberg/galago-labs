@@ -13,7 +13,8 @@
  * necessary to dynamically configure the `base` path part of the URL, which
  * then meant we had to abstract away building our routes out of that base
  * path plus the "real" value in ROUTES. If we ever have to go back to that
- * approach, look at commit SHA `0c4f251c` for this file and `vite.config.ts`.
+ * approach, look at commit SHA `0c4f251c` for this file, `vite.config.ts` and
+ * the GitHub workflow itself `.github/workflows/build-deployment.yml`.
  */
 export enum ROUTES {
   HOMEPAGE = "/",

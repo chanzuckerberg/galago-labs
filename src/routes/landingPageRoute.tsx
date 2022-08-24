@@ -2,7 +2,7 @@ import Header from "../components/header";
 import LandingPage from "../components/landingPage";
 
 export const LandingPageRoute = () => {
-  console.log("CI/CD appears to be working as expected!"); // REMOVE
+  console.log("Routes swapped over. Yay root domains!"); // REMOVE
   return (
     <div>
       <Header />

@@ -1,11 +1,13 @@
 name: Build and Deploy
 
+# VOODOO verify hash router works as expected
+on: push
 # Runs build and deploy whenever main is merged to or pushed to.
 # (...please don't push directly to main)
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
 jobs:
   build_and_deploy:

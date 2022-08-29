@@ -1,5 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
+// Using `HashRouter` b/c deployed to GitHub Pages. See overview on why here:
+// https://create-react-app.dev/docs/deployment/#notes-on-client-side-routing
 import { HashRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import App from "./App";

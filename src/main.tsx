@@ -9,6 +9,7 @@ import App from "./App";
 import { Provider } from "react-redux";
 import { store } from "./reducers/store";
 import LandingPageRoute from "./routes/landingPageRoute";
+import FetchTree from "./routes/fetchTree";
 import { ThemeProvider } from "@emotion/react";
 import { Theme } from "./theme";
 import { ROUTES } from "./routes";
@@ -20,6 +21,9 @@ ReactDOM.render(
         <HashRouter>
           <Routes>
             <Route path={ROUTES.HOMEPAGE} element={<LandingPageRoute />} />
+            <Route path={ROUTES.FETCH_DATA} element={<FetchTree />}>
+              <Route path="*" element={<FetchTree />} />
+            </Route>
             <Route path={ROUTES.APP} element={<App />} />
           </Routes>
         </HashRouter>

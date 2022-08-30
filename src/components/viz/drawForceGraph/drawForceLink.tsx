@@ -60,6 +60,7 @@ const calculateTicks = (
 };
 
 export const DrawForceLink = (props: DrawForceLinkProps) => {
+  // return <></>;
   //   const onMouseOutHandler = () => {
   //     d3.select(".linkTextValue").remove();
   //   };

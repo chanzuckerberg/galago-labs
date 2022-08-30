@@ -22,6 +22,13 @@ const getColor = (
   muts_per_trans_minmax: number,
   colorScale: [string, string, string]
 ) => {
+  if (!forceNode.isLeaf) {
+    return "blue";
+  }
+  if (forceNode.isPolytomy) {
+    return "red";
+  }
+
   //@ts-ignore -- not sure why the `extend` works for forceLink but not forceNode in d.ts
   if (forceNode.mrcaDist === 0) {
     return colorScale[0];
@@ -97,10 +104,11 @@ export const DrawNodes = (props: DrawNodesProps) => {
     scaleDomainY,
   } = props;
 
-  const radius = Math.max(
-    Math.min(chartHeight / (0.8 * forceNodes.length), 25),
-    2
-  );
+  const radius = 4;
+  // const radius = Math.max(
+  //   Math.min(chartHeight / (0.8 * forceNodes.length), 25),
+  //   2
+  // );
 
   const scaleX = d3
     .scaleLinear()
@@ -119,9 +127,9 @@ export const DrawNodes = (props: DrawNodesProps) => {
     <g className="nodes">
       {forceNodes.map((forceNode: SimulationNodeDatum) => {
         //@ts-ignore
-        if (!forceNode.isLeaf) {
-          return <></>;
-        }
+        // if (!forceNode.isLeaf) {
+        //   return <></>;
+        // }
 
         //@ts-ignore
         if (state.samplesOfInterestNames.includes(forceNode.id)) {

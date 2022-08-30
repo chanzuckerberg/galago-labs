@@ -106,39 +106,39 @@ export const initSimulation = (
     .force(
       // nodes repel each other / fan out
       "charge",
-      d3
-        .forceManyBody()
-        // @ts-ignore - somehow it still can't figure out that forceNode extends NodeSimulationDatum
-        .strength((d: forceNode) => {
-          if (!d.isPolytomy) {
-            return -30 * (forceNodes.length / 10);
-          } else if (d.isPolytomy && !d.isLeaf) {
-            return +1;
-          } else {
-            // polytomy leaves
-            return -1 * (forceNodes.length / 10);
-          }
-        })
-        .distanceMin(0)
+      d3.forceManyBody().strength(20)
+      // @ts-ignore - somehow it still can't figure out that forceNode extends NodeSimulationDatum
+      // .strength((d: forceNode) => {
+      //   if (!d.isPolytomy) {
+      //     return -30 * (forceNodes.length / 10);
+      //   } else if (d.isPolytomy && !d.isLeaf) {
+      //     return +1;
+      //   } else {
+      //     // polytomy leaves
+      //     return -1 * (forceNodes.length / 10);
+      //   }
+      // })
+      // .distanceMin(0)
     )
     // fka 'gravity' - nodes close to the center are only slightly affected, nodes farther away are pulled inwards with progressively increasing force
-    .force("center", d3.forceCenter(chartWidth / 2, chartHeight / 2))
+    // .force("center", d3.forceCenter(chartWidth / 2, chartHeight / 2))
     // don't overlap nodes with each other
     .force(
       "collision",
       //@ts-ignore
-      d3.forceCollide().radius((d: forceNode) => {
-        if (!d.isLeaf) {
-          // internal nodes
-          return 0;
-        } else if (!d.isPolytomy) {
-          // standalone nodes
-          return radius;
-        } else {
-          // polytomy leaves
-          return radius * 0.5;
-        }
-      })
+      d3.forceCollide()
+      // .radius((d: forceNode) => {
+      //   if (!d.isLeaf) {
+      //     // internal nodes
+      //     return 0;
+      //   } else if (!d.isPolytomy) {
+      //     // standalone nodes
+      //     return radius;
+      //   } else {
+      //     // polytomy leaves
+      //     return radius * 0.5;
+      //   }
+      // })
     );
 
   return simulation;

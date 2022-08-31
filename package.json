@@ -5,7 +5,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "type-check": "tsc"
+    "type-check": "tsc",
+    "lint-formatting": "prettier --check ."
   },
   "dependencies": {
     "@emotion/react": "^11.9.0",
@@ -34,6 +35,7 @@
     "@types/react-dom": "^17.0.10",
     "@types/react-helmet": "^6.1.5",
     "@vitejs/plugin-react": "^1.0.7",
+    "prettier": "2.7.1",
     "typescript": "^4.6.2",
     "vite": "^2.8.5"
   }

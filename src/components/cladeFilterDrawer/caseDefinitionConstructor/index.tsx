@@ -1,12 +1,17 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
-import Selectors from "./selectors";
+import { useEffect, useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { Button, FormLabel } from "@mui/material";
 import Theme from "../../../theme";
+import { Node } from "../../../d";
 import ContinuousDataSlider from "./continuousDataSlider";
 import CategoricalDataSelector from "./categoricalDataSelector";
+import {
+  fieldIsValid,
+  filterSamples,
+} from "../../../utils/caseDefinitionFilters";
+import { get_leaves } from "../../../utils/treeMethods";
 
 export const CaseDefinitionConstructor = () => {
   // @ts-ignore -- TODO: figure out how to add types to state
@@ -14,19 +19,24 @@ export const CaseDefinitionConstructor = () => {
   const dispatch = useDispatch();
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
 
-  const fieldIsValid = (fieldSummary: any) => {
-    if (fieldSummary["dataType"] == "categorical") {
-      return (
-        fieldSummary["uniqueValues"].length <= 100 &&
-        fieldSummary["uniqueValues"].length >= 2
+  const [newSamplesMatchingCaseDef, setNewSamplesMatchingCaseDef] = useState<
+    Node[]
+  >([]);
+
+  const allSamples = get_leaves(state.tree);
+  useEffect(() => {
+    if (state.caseDefFilters) {
+      setNewSamplesMatchingCaseDef(
+        filterSamples(
+          allSamples,
+          state.caseDefFilters,
+          state.samplesOfInterestNames
+        )
       );
     } else {
-      return (
-        !isNaN(fieldSummary["min"]) &&
-        fieldSummary["min"] !== fieldSummary["max"]
-      );
+      setNewSamplesMatchingCaseDef([]);
     }
-  };
+  }, [state.caseDefFilters, state.samplesOfInterestNames]);
 
   const validFields: Array<any> = [];
   Object.entries(state.metadataCensus).forEach((entry, i) => {
@@ -42,27 +52,25 @@ export const CaseDefinitionConstructor = () => {
         backgroundColor: Theme.palette.secondary.lighter,
         padding: 10,
         borderRadius: 5,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-evenly",
       }}
     >
-      <h4 style={{ margin: 0 }}>Add samples by case definition:</h4>
-      <FormLabel>
-        Samples matching selected metadata will be added to the list of Sample
-        Names.
-      </FormLabel>
+      <div>
+        <h4 style={{ margin: 0 }}>Add samples by case definition:</h4>
+        <FormLabel>
+          Samples matching selected metadata will be added to the list of Sample
+          Names.
+        </FormLabel>
+      </div>
       <div
         style={{
           display: "flex",
           flexDirection: "row",
-          justifyContent: "space-evenly",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
+        <div style={{ position: "relative", left: 0, width: "50%" }}>
           <Autocomplete
             multiple
             id="tags-outlined"
@@ -84,46 +92,43 @@ export const CaseDefinitionConstructor = () => {
             )}
           />
         </div>
+
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-evenly",
+            position: "relative",
+            left: 0,
+            top: 5,
+            width: "50%",
           }}
         >
-          {selectedFields.map((field: string) => {
-            return state.metadataCensus[field]["dataType"] === "continuous" ? (
-              <ContinuousDataSlider field={field} />
-            ) : (
-              <CategoricalDataSelector field={field} />
-            );
-          })}
+          {selectedFields &&
+            selectedFields.map((field: string) =>
+              state.metadataCensus[field]["dataType"] === "continuous" ? (
+                <ContinuousDataSlider field={field} />
+              ) : (
+                <CategoricalDataSelector field={field} />
+              )
+            )}
         </div>
       </div>
-      <div
-        style={
-          {
-            // display: "flex",
-            // flexDirection: "row",
-            // justifyContent: "space-around",
-          }
-        }
-      >
+
+      <div>
         <Button
           disableElevation
           disableRipple
-          style={{ marginTop: 30 }}
+          style={{ marginTop: 30, marginRight: 30 }}
           variant="contained"
           name="submitCaseDef"
           onClick={(e) => {
             dispatch({
               type: "case definition submitted",
+              data: newSamplesMatchingCaseDef,
             });
           }}
           size="small"
-          disabled={Object.keys(state.caseDefFilters).length === 0}
+          disabled={newSamplesMatchingCaseDef.length < 1}
         >
-          Add matches to Samples of Interest
+          {`Add ${newSamplesMatchingCaseDef.length} samples`}
         </Button>
         <Button
           variant="text"

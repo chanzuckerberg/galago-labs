@@ -18,7 +18,10 @@ export const ContinuousDataSlider = (props: ContinuousDataSliderProps) => {
   let range = [metadataCensus[field]["min"], metadataCensus[field]["max"]];
 
   return (
-    <FormControl margin="dense">
+    <FormControl
+      margin="dense"
+      style={{ position: "relative", margin: "auto" }}
+    >
       <FormLabel>{field}</FormLabel>
       <Slider
         size="small"

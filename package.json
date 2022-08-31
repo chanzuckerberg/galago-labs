@@ -6,7 +6,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "type-check": "tsc",
-    "lint-formatting": "prettier --check ."
+    "lint-formatting": "prettier --write .",
+    "lint-formatting-ci": "prettier --check ."
   },
   "dependencies": {
     "@emotion/react": "^11.9.0",

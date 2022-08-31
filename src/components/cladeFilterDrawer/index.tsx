@@ -14,7 +14,14 @@ export const CladeFilterDrawer = () => {
   const dispatch = useDispatch();
 
   return (
-    <div style={{ width: windowWidth * 0.3, margin: "auto", marginTop: 50 }}>
+    <div
+      style={{
+        width: windowWidth * 0.4,
+        margin: "auto",
+        marginTop: 50,
+        paddingBottom: 100,
+      }}
+    >
       <div
         style={{
           position: "fixed",

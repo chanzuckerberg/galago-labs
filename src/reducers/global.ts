@@ -379,6 +379,10 @@ export const global = (state = defaultState, action: any) => {
       }
     }
 
+    case "case definition filters cleared": {
+      return { ...state, caseDefFilters: {} };
+    }
+
     case "case definition filters updated": {
       const newFilter = action.data;
       const field = newFilter.field;

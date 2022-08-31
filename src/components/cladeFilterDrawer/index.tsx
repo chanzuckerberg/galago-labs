@@ -22,6 +22,13 @@ export const CladeFilterDrawer = () => {
         paddingBottom: 100,
       }}
     >
+      <div>
+        <h1>Filter clades</h1>
+        <ClusteringOptions />
+        <Divider variant="middle" style={{ margin: 30 }} />
+
+        <SamplesOfInterest />
+      </div>
       <div
         style={{
           position: "fixed",
@@ -62,14 +69,6 @@ export const CladeFilterDrawer = () => {
             <ClearIcon />
           </Fab>
         </Tooltip>
-      </div>
-      <div>
-        <h1>Filter & Suggest Clades</h1>
-        <ClusteringOptions />
-        <Divider variant="middle" style={{ margin: 30 }} />
-
-        <SamplesOfInterest />
-        <CaseDefinitionConstructor />
       </div>
     </div>
   );

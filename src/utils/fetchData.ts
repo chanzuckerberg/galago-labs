@@ -4,6 +4,26 @@
 import { ROUTES } from "../routes";
 
 /**
+ * If passed string does not have an http(s) schema already, prefix with https.
+ *
+ * We allow user to specify the URL they want a tree JSON fetched from, but we
+ * always want an absolute URL with the schema for making the data request.
+ * User can give us `example.com/somejson` or `https://example.com/somejson`,
+ * and it should work the same either way. If schema already present, leave
+ * it alone, otherwise we tack on default assumption that they meant https.
+ */
+const DEFAULT_SCHEMA = "https://";
+const SCHEMA_CHECK_REGEX = /^https?:/; // String starts `http:` or `https:`
+function schemifyUrl(rawUrl: string): string {
+  let result = rawUrl; // Default to assuming schema already present.
+  if (!SCHEMA_CHECK_REGEX.test(rawUrl)) {
+    // rawUrl is missing the expected schema, add it on
+    result = DEFAULT_SCHEMA + rawUrl;
+  }
+  return result;
+}
+
+/**
  * Gets the URL for external JSON tree from browser's current location.
  *
  * To fetch an external JSON source -- so a user can skip directly uploading
@@ -46,5 +66,8 @@ export function getUrlToFetch(): string | null {
   // skip to its end and then also go 1 farther to pass by the trailing `/`.
   const fetchUrlIdx = fetchDeclarationIdx + ROUTES.FETCH_DATA.length + 1;
   const fetchUrl = href.slice(fetchUrlIdx);
-  return fetchUrl;
+  if (fetchUrl === "") { // Fetch path found, but nothing given for data URL
+    return null;
+  }
+  return schemifyUrl(fetchUrl);
 }

@@ -61,7 +61,9 @@ const defaultState = {
   fetchData: { // Everything around process of fetching data from external URL
     fetchInProcess: false, // App is fetching data (takes a few seconds)
     targetUrl: "", // URL we were given to fetch
-    // TODO add error handling
+    errorDuringFetch: false, // Was there an error around fetch process
+    errorMessage: "", // If error, human-readable message about the error.
+    displayError: false, // Should we display error about fetch to user?
   },
 };
 
@@ -379,6 +381,34 @@ export const global = (state = defaultState, action: any) => {
         fetchData: {
           ...state.fetchData,
           fetchInProcess: false,
+        },
+      };
+    }
+
+    case ACTION_TYPES.FETCH_TREE_DATA_FAILED: {
+      const { errorMessage } = action;
+      return {
+        ...state,
+        fetchData: {
+          ...state.fetchData,
+          fetchInProcess: false,
+          errorDuringFetch: true,
+          errorMessage,
+          displayError: true,
+        },
+      };
+    }
+
+    case ACTION_TYPES.FETCH_TREE_NO_URL_SPECIFIED: {
+      const { errorMessage } = action;
+      return {
+        ...state,
+        fetchData: {
+          ...state.fetchData,
+          fetchInProcess: false,
+          errorDuringFetch: true,
+          errorMessage,
+          displayError: true,
         },
       };
     }

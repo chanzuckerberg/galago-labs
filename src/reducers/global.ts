@@ -43,7 +43,6 @@ const defaultState = {
   metadataEntries: [],
   metadataFieldToMatch: "",
   caseDefFilters: {},
-  samplesMatchingCaseDef: [],
   loadReport: false,
   cladeDescription: null,
   viewPlot: "scatter", // "scatter" | "forceGraph"
@@ -58,13 +57,6 @@ const defaultState = {
   divisionOptions: [""],
   pathogen: "",
   mutsPerTransmissionMax: "",
-  fetchData: { // Everything around process of fetching data from external URL
-    fetchInProcess: false, // App is fetching data (takes a few seconds)
-    targetUrl: "", // URL we were given to fetch
-    errorDuringFetch: false, // Was there an error around fetch process
-    errorMessage: "", // If error, human-readable message about the error.
-    displayError: false, // Should we display error about fetch to user?
-  },
 };
 
 export const global = (state = defaultState, action: any) => {
@@ -117,6 +109,7 @@ export const global = (state = defaultState, action: any) => {
       };
     }
 
+    // TODO: only cache the fields that could be altered in this drawer
     case "filter drawer opened": {
       return {
         ...state,
@@ -179,6 +172,7 @@ export const global = (state = defaultState, action: any) => {
       return {
         ...defaultState,
         tree: tree,
+        pathogen: "sarscov2",
         haveInternalNodeDates: haveInternalNodeDates,
         metadataEntries: tidyMetadata,
         metadataCensus: { ...treeMetadata, ...metadataCensus },
@@ -454,6 +448,10 @@ export const global = (state = defaultState, action: any) => {
       }
     }
 
+    case "case definition filters cleared": {
+      return { ...state, caseDefFilters: {} };
+    }
+
     case "case definition filters updated": {
       const newFilter = action.data;
       const field = newFilter.field;
@@ -464,7 +462,7 @@ export const global = (state = defaultState, action: any) => {
       if (newFilter.dataType === "continuous") {
         if (
           //@ts-ignore
-          state.metadataCensus[field]["min"] === newFilter["max"] &&
+          state.metadataCensus[field]["min"] === newFilter["min"] &&
           //@ts-ignore
           state.metadataCensus[field]["max"] === newFilter["max"]
         ) {
@@ -491,55 +489,13 @@ export const global = (state = defaultState, action: any) => {
     }
 
     case "case definition submitted": {
-      if (state.tree && state.caseDefFilters) {
-        let matchingSamples: Node[] = get_leaves(state.tree);
-        if (Object.keys(state.caseDefFilters).length === 0) {
-          return { ...state, samplesMatchingCaseDef: matchingSamples };
-        }
-
-        for (let i = 0; i < Object.entries(state.caseDefFilters).length; i++) {
-          let thisFilter = Object.entries(state.caseDefFilters)[i];
-
-          //@ts-ignore
-          if (thisFilter[1]["dataType"] === "categorical") {
-            //@ts-ignore
-            matchingSamples = matchingSamples.filter((n: Node) =>
-              //@ts-ignore
-              thisFilter[1]["acceptedValues"].includes(
-                getNodeAttr(n, thisFilter[0])
-              )
-            );
-          } else {
-            //@ts-ignore
-            matchingSamples = matchingSamples.filter(
-              (n: Node) =>
-                //@ts-ignore
-                getNodeAttr(n, thisFilter[0]) <= thisFilter[1]["max"] &&
-                getNodeAttr(
-                  n,
-                  //@ts-ignore
-                  thisFilter[0]
-                  //@ts-ignore
-                ) >= thisFilter[1]["min"]
-            );
-          }
-        }
-
-        matchingSamples = matchingSamples.filter(
-          //@ts-ignore - wtf is this one
-          (n: Node) => !state.samplesOfInterestNames.includes(n.name)
-        );
-        const matchingSampleNames = matchingSamples.map((n: Node) => n.name);
-
-        return {
-          ...state,
-          //@ts-ignore
-          samplesOfInterest: state.samplesOfInterest.concat(matchingSamples),
-          samplesOfInterestNames:
-            //@ts-ignore
-            state.samplesOfInterestNames.concat(matchingSampleNames),
-        };
-      }
+      return {
+        ...state,
+        samplesOfInterest: state.samplesOfInterest.concat(action.data),
+        samplesOfInterestNames: state.samplesOfInterestNames.concat(
+          action.data.map((n: Node) => n.name)
+        ),
+      };
     }
 
     case "upload submit button clicked": {

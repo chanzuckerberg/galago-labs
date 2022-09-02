@@ -5,141 +5,167 @@ const polarToCartesian = (theta: number, radius: number) => {
   return { x: radius * Math.cos(theta), y: radius * Math.sin(theta) };
 };
 
-const getNodeSize = (node: Node) => {
-  // how many sample(s) should be represented by this node?
-
-  // descendent leaves with branch length 0 do not have size of their own (allocated to parent)
-  if (node.children.length === 0 && node.branch_attrs.length === 0) {
-    return 0; //
-  } else if (node.children.length === 0) {
-    return 1; // leaf, not part of a polytomy, gets its own space
-  } else {
-    // internal nodes get size allocated based on N direct descendent leaves with branch length 0
-    return node.children.filter(
+const getPolytomySize = (node: Node) => {
+  // internal nodes get size allocated based on N direct descendent leaves with branch length 0
+  return (
+    node.children.filter(
       (child: Node) =>
         child.children.length === 0 && child.branch_attrs.length === 0
-    ).length;
-  }
+    ).length + 1
+  );
 };
 
-const getNodeThetaAllocationEqualShare = (
-  node: Node,
-  parentThetaAllocation: number
+const getTipCountForThetaAllocation = (node: Node) => {
+  // how many sample(s) should be represented by this node?
+  return node.children.length === 0 ? 1 : getNodeAttr(node, "tipCount");
+  // if (node.children.length === 0) {
+  //   // leaves represent just themselves unless they're part of a polytomy (then they are already represented by their parent)
+  //   return node.branch_attrs.length === 0 ? 0 : 1;
+  // } else {
+  //   // nodes represent all the tips that descend from them, but the polytomy leaves are represented in circle size, not angular space
+  //   return getNodeAttr(node, "tipCount") - getPolytomySize(node);
+  // }
+};
+
+const assignCoordinatesToChild = (
+  childNode: Node,
+  parentThetaAllocation: number,
+  parentTipCount: number,
+  parentThetaMin: number,
+  mrcaDiv: number
 ) => {
-  // How many degrees around the circle are allocated to this node is based on the fraction of the parent's total descendents that are also descendents of this node
-  if (!node.parent) {
-    // should never encounter
-    console.error("orphan node found in unrooted tree layout");
-    return 2 * Math.PI;
-  }
-  let tipCount;
-  // tips get to take up theta space for themselves unless they're part of a polytomy
-  if (node.children.length === 0 && node.branch_attrs.length > 0) {
-    tipCount = 1;
-    // internal nodes take up space for all descendent tips except those that are part of a polytomy
-  } else {
-    const nodeSize = getNodeSize(node); // N polytomy samples at this internal node
-    tipCount = getNodeAttr(node, "tipCount") - nodeSize; // all samples that descend from this node
-  }
+  // console.log(
+  //   "input values",
+  //   childNode,
+  //   parentThetaAllocation,
+  //   parentTipCount,
+  //   parentThetaMin,
+  //   mrcaDiv
+  // );
+  // WARNING: impure function, updates nodes in place.
+  const nodeSize = getPolytomySize(childNode);
+  const tipCount = getTipCountForThetaAllocation(childNode);
+  const thetaAllocation = (tipCount / parentTipCount) * parentThetaAllocation;
+  const thetaMin = parentThetaMin;
+  const thetaMax = thetaMin + thetaAllocation;
+  const theta = (thetaMax - thetaMin) / 2;
+  const radius = getNodeAttr(childNode, "div") - mrcaDiv;
+  const { x, y } = polarToCartesian(theta, radius);
 
-  const proportionOfParentsDescendentTips =
-    tipCount / getNodeAttr(node.parent, "tipCount");
+  // console.log(
+  //   "output values",
+  //   nodeSize,
+  //   tipCount,
+  //   thetaAllocation,
+  //   theta,
+  //   radius,
+  //   x,
+  //   y
+  // );
 
-  const thetaAngleAllocation =
-    proportionOfParentsDescendentTips * parentThetaAllocation;
-  return thetaAngleAllocation;
+  // update node attrs with coordinates
+  childNode.node_attrs = {
+    ...childNode.node_attrs,
+    thetaMin,
+    thetaMax,
+    theta,
+    radius,
+    x,
+    y,
+    nodeSize,
+  };
+};
+
+const updateMinMaxValues = (
+  node: Node,
+  vals: {
+    minX: number;
+    maxX: number;
+    minY: number;
+    maxY: number;
+    maxSize: number;
+  }
+) => {
+  // update min / max coordinates for svg scaling later
+  const x = getNodeAttr(node, "x");
+  const y = getNodeAttr(node, "y");
+  const nodeSize = getNodeAttr(node, "nodeSize");
+
+  vals["minX"] = x && x < vals["minX"] ? x : vals["minX"];
+  vals["maxX"] = x && x > vals["maxX"] ? x : vals["maxX"];
+  vals["minY"] = y && y < vals["minY"] ? y : vals["minY"];
+  vals["maxY"] = y && y > vals["maxY"] ? y : vals["maxY"];
+  vals["maxSize"] = nodeSize > vals["maxSize"] ? nodeSize : vals["maxSize"];
+
+  return vals;
 };
 
 export const initializeEqualAnglePolarCoordinates = (mrca: Node) => {
-  // WARNING: impure function
-
   const orderedNodes = traverse_preorder(mrca); // traverse through each parent node before its children
+  const mrcaDiv = getNodeAttr(mrca, "div"); // used as 'zero' for radius
 
-  // keep track of x,y axis ranges while we're at it for use later in scale.domain
-  let minX = 0;
-  let maxX = 0;
-  let minY = 0;
-  let maxY = 0;
-  let maxSize = 0;
+  let parentThetaMin, parentThetaMax, parentThetaAllocation;
+  let minMaxValues = { minX: 0, maxX: 0, minY: 0, maxY: 0, maxSize: 0 };
 
-  orderedNodes.forEach((node: Node) => {
-    if (!node.parent || node === mrca) {
-      // root of the (sub)tree
-      const { x, y } = polarToCartesian(Math.PI, 0); // initialize at (0,0)
+  orderedNodes.forEach((parentNode: Node) => {
+    if (parentNode.children.length > 0) {
+      // leaves have their coordinates assigned when we visit their parents, no need to visit directly
 
-      const nodeSize = getNodeSize(node);
-      maxSize = nodeSize > maxSize ? nodeSize : maxSize;
+      if (!parentNode.parent || parentNode === mrca) {
+        /*
+    Initialize directly with starting values
+    After this initialization we only look forward / alter the child nodes at each step
+    */
+        console.log("initializing the root node");
+        parentThetaMin = 0;
+        parentThetaMax = 2 * Math.PI;
+        parentThetaAllocation = parentThetaMax - parentThetaMin;
+        const nodeSize = getPolytomySize(parentNode);
 
-      node.node_attrs = {
-        ...node.node_attrs,
-        theta: Math.PI, // start rotating from the halfway point around the circle (arbitrary)
-        thetaMin: 0,
-        thetaMax: 2 * Math.PI, // full circle available to divvy up amongst direct children
-        radius: 0, // 0 branch length
-        nodeSize: nodeSize, // check if polytomy, plot accordingly
-        x: x,
-        y: y,
-      };
-    } else if (node.children.length === 0 && node.branch_attrs.length === 0) {
-      // leaves that descend from a polytomy node (i.e., have 0 branch length) should not take up rotational space
-      node.node_attrs = {
-        ...node.node_attrs,
-        theta: getNodeAttr(node.parent, "theta"),
-        thetaMin: getNodeAttr(node.parent, "thetaMin"),
-        thetaMax: getNodeAttr(node.parent, "thetaMax"),
-        radius: getNodeAttr(node, "div"),
-        nodeSize: 0,
-        x: getNodeAttr(node.parent, "x"),
-        y: getNodeAttr(node.parent, "y"),
-      };
-    } else {
-      // share of the circle allocated to the parent node
-      const parentThetaMin = getNodeAttr(node.parent, "thetaMin");
-      const parentThetaMax = getNodeAttr(node.parent, "thetaMax");
-      const parentThetaAllocation = parentThetaMax - parentThetaMin;
+        parentNode.node_attrs = {
+          ...parentNode.node_attrs,
+          thetaMin: parentThetaMin,
+          thetaMax: parentThetaMax,
+          theta: Math.PI,
+          radius: 0,
+          x: 0,
+          y: 0,
+          nodeSize,
+        };
 
-      const nodeThetaShare = getNodeThetaAllocationEqualShare(
-        node,
-        parentThetaAllocation
-      );
-
-      const nodeSiblingIndex = node.parent.children.indexOf(node);
-      let nodeThetaMin = parentThetaMin;
-      for (let i = 0; i < nodeSiblingIndex; i++) {
-        nodeThetaMin += getNodeThetaAllocationEqualShare(
-          node.parent.children[i],
-          parentThetaAllocation
-        );
+        // update node size (others are 0 for the parent -- ie the default anyways)
+        minMaxValues = updateMinMaxValues(parentNode, minMaxValues);
+      } else {
+        /* Then, for each internal node in the tree, pull its pre-assigned coordinates*/
+        parentThetaMin = getNodeAttr(parentNode, "thetaMin");
+        parentThetaMax = getNodeAttr(parentNode, "thetaMax");
+        parentThetaAllocation = parentThetaMax - parentThetaMin;
       }
 
-      const nodeThetaMax = nodeThetaMin + nodeThetaShare;
+      let offsetFromParentThetaMin = 0;
+      /* Whether the current `parentNode` we're iterating over is the root or an internal node, assign coordinates to each of its direct descendents.*/
+      const parentTipCount = getTipCountForThetaAllocation(parentNode);
 
-      const theta = (nodeThetaMax - nodeThetaMin) / 2; // midpoint of allocated theta range
+      for (let i = 0; i < parentNode.children.length; i++) {
+        const childNode = parentNode.children[i];
 
-      const radius = getNodeAttr(node, "div");
+        assignCoordinatesToChild(
+          childNode,
+          parentThetaAllocation,
+          parentTipCount,
+          parentThetaMin + offsetFromParentThetaMin,
+          mrcaDiv
+        );
 
-      // convert to rectangular coordinates
-      const { x, y } = polarToCartesian(theta, radius);
+        const type = childNode.children.length === 0 ? "LEAF" : "INTERNAL NODE";
 
-      const nodeSize = getNodeSize(node);
-
-      minX = x && x < minX ? x : minX;
-      maxX = x && x > maxX ? x : maxX;
-      minY = y && y < minY ? y : minY;
-      maxY = y && y > maxY ? y : maxY;
-      maxSize = nodeSize > maxSize ? nodeSize : maxSize;
-
-      node.node_attrs = {
-        ...node.node_attrs,
-        theta: theta,
-        thetaMin: nodeThetaMin,
-        thetaMax: nodeThetaMax,
-        radius: radius,
-        nodeSize: nodeSize,
-        x: x,
-        y: y,
-      };
+        offsetFromParentThetaMin +=
+          getNodeAttr(childNode, "thetaMax") -
+          getNodeAttr(childNode, "thetaMin");
+        minMaxValues = updateMinMaxValues(childNode, minMaxValues);
+      }
+    } else {
     }
   });
-  return { minX: minX, maxX: maxX, minY: minY, maxY: maxY, maxSize: maxSize };
+  return minMaxValues;
 };

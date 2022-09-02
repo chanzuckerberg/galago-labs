@@ -129,11 +129,6 @@ export const DrawNodes = (props: DrawNodesProps) => {
     <g className="nodes">
       {nodes.map((node: Node) => {
         //@ts-ignore
-        // if (!forceNode.isLeaf) {
-        //   return <></>;
-        // }
-
-        //@ts-ignore
         return drawCircle(
           //@ts-ignore
           node,
@@ -166,14 +161,17 @@ export const DrawNodes = (props: DrawNodesProps) => {
           );
         }
       })}
-      {/* 
-      {nodes.map((node: Node) => {
+
+      {/* {nodes.map((node: Node) => {
         return (
           <text
             x={scaleX(getNodeAttr(node, "x"))}
             y={scaleY(getNodeAttr(node, "y"))}
           >
-            {(getNodeAttr(node, "theta") / Math.PI).toFixed(2)}
+            {`${getNodeAttr(node, "thetaMin").toFixed(2)} ${getNodeAttr(
+              node,
+              "thetaMax"
+            ).toFixed(2)}`}
           </text>
         );
       })} */}

@@ -23,7 +23,6 @@ export const get_division_input_options = (tree: Node, country: string) => {
   const samples_from_country = all_samples.filter(
     (s) => getNodeAttr(s, "country") === country
   );
-  console.log("samples from country", samples_from_country);
   const division_options = tidy_values(
     samples_from_country.map((s) => {
       if (getNodeAttr(s, "location")) {

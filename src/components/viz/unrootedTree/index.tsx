@@ -42,7 +42,6 @@ export const unrootedTree = (props: unrootedTreeProps) => {
     const { minX, maxX, minY, maxY, maxSize } =
       initializeEqualAnglePolarCoordinates(state.mrca);
 
-    console.log("min max x", minX, maxX, "min max Y", minY, maxY);
     setScaleDomainX([minX, maxX]);
     setScaleDomainY([minY, maxY]);
     setReady(true);

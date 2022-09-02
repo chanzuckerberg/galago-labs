@@ -116,7 +116,6 @@ export const initializeEqualAnglePolarCoordinates = (mrca: Node) => {
     Initialize directly with starting values
     After this initialization we only look forward / alter the child nodes at each step
     */
-        console.log("initializing the root node");
         parentThetaMin = 0;
         parentThetaMax = 2 * Math.PI;
         parentThetaAllocation = parentThetaMax - parentThetaMin;

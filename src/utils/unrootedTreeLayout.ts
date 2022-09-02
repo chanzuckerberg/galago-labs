@@ -48,7 +48,7 @@ const assignCoordinatesToChild = (
   const thetaAllocation = (tipCount / parentTipCount) * parentThetaAllocation;
   const thetaMin = parentThetaMin;
   const thetaMax = thetaMin + thetaAllocation;
-  const theta = (thetaMax - thetaMin) / 2;
+  const theta = thetaMin + (thetaMax - thetaMin) / 2;
   const radius = getNodeAttr(childNode, "div") - mrcaDiv;
   const { x, y } = polarToCartesian(theta, radius);
 

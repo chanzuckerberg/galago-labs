@@ -27,13 +27,7 @@ const getColor = (
   muts_per_trans_minmax: number,
   colorScale: [string, string, string]
 ) => {
-  if (node.children.length === 0) {
-    return "green";
-  }
   const distanceFromMrca = get_dist([node, mrca]);
-  if (distanceFromMrca === 0) {
-    return "blue";
-  }
 
   //@ts-ignore -- not sure why the `extend` works for forceLink but not forceNode in d.ts
   if (distanceFromMrca === 0) {
@@ -91,7 +85,8 @@ const drawCircle = (
       className="node"
       cx={scaleX(getNodeAttr(node, "x"))}
       cy={scaleY(getNodeAttr(node, "y"))}
-      r={getNodeAttr(node, "nodeSize")}
+      r={4}
+      // r={getNodeAttr(node, "nodeSize")}
       fill={color}
       key={`node-${uuid()}`}
       opacity={0.95}
@@ -128,19 +123,6 @@ export const DrawNodes = (props: DrawNodesProps) => {
   return (
     <g className="nodes">
       {nodes.map((node: Node) => {
-        //@ts-ignore
-        return drawCircle(
-          //@ts-ignore
-          node,
-          state.mrca,
-          state.mutsPerTransmissionMax,
-          colorScale,
-          scaleX,
-          scaleY
-        );
-      })}
-
-      {nodes.map((node: Node) => {
         if (node.parent && node !== state.mrca) {
           return (
             <line
@@ -149,7 +131,7 @@ export const DrawNodes = (props: DrawNodesProps) => {
               x2={scaleX(getNodeAttr(node.parent, "x"))}
               y1={scaleY(getNodeAttr(node, "y"))}
               y2={scaleY(getNodeAttr(node.parent, "y"))}
-              stroke={"black"}
+              stroke={"gray"}
               // onMouseOver={(event) => {
               //   onMouseOverHandler(event);
               // }}
@@ -160,6 +142,18 @@ export const DrawNodes = (props: DrawNodesProps) => {
             />
           );
         }
+      })}
+      {nodes.map((node: Node) => {
+        //@ts-ignore
+        return drawCircle(
+          //@ts-ignore
+          node,
+          state.mrca,
+          state.mutsPerTransmissionMax,
+          colorScale,
+          scaleX,
+          scaleY
+        );
       })}
 
       {/* {nodes.map((node: Node) => {

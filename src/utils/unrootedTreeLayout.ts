@@ -7,12 +7,10 @@ const polarToCartesian = (theta: number, radius: number) => {
 
 const getPolytomySize = (node: Node) => {
   // internal nodes get size allocated based on N direct descendent leaves with branch length 0
-  return (
-    node.children.filter(
-      (child: Node) =>
-        child.children.length === 0 && child.branch_attrs.length === 0
-    ).length + 1
-  );
+  return node.children.filter(
+    (child: Node) =>
+      child.children.length === 0 && child.branch_attrs.length === 0
+  ).length;
 };
 
 const getTipCountForThetaAllocation = (node: Node) => {
@@ -34,14 +32,6 @@ const assignCoordinatesToChild = (
   parentThetaMin: number,
   mrcaDiv: number
 ) => {
-  // console.log(
-  //   "input values",
-  //   childNode,
-  //   parentThetaAllocation,
-  //   parentTipCount,
-  //   parentThetaMin,
-  //   mrcaDiv
-  // );
   // WARNING: impure function, updates nodes in place.
   const nodeSize = getPolytomySize(childNode);
   const tipCount = getTipCountForThetaAllocation(childNode);
@@ -51,17 +41,6 @@ const assignCoordinatesToChild = (
   const theta = thetaMin + (thetaMax - thetaMin) / 2;
   const radius = getNodeAttr(childNode, "div") - mrcaDiv;
   const { x, y } = polarToCartesian(theta, radius);
-
-  // console.log(
-  //   "output values",
-  //   nodeSize,
-  //   tipCount,
-  //   thetaAllocation,
-  //   theta,
-  //   radius,
-  //   x,
-  //   y
-  // );
 
   // update node attrs with coordinates
   childNode.node_attrs = {

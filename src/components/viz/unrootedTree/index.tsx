@@ -5,7 +5,7 @@ import ForceGraphLegend from "./drawLegend";
 import CircularProgress from "@mui/material/CircularProgress";
 import Theme from "../../../theme";
 import { Node } from "../../../d";
-import { initializeEqualAnglePolarCoordinates } from "../../../utils/unrootedTreeLayout";
+import { initializeEqualAnglePolarCoordinates } from "../../../utils/unrootedTree";
 import { Tooltip, useTooltip } from "@visx/tooltip";
 
 type unrootedTreeProps = {

@@ -34,14 +34,17 @@ const assignCoordinatesToChild = (
   childNode: Node,
   parentThetaAllocation: number,
   parentTipCount: number,
-  parentThetaMin: number,
+  thetaMin: number,
   mrcaDiv: number
 ) => {
   // WARNING: impure function, updates nodes in place.
   const nodeSize = getPolytomySize(childNode);
   const tipCount = getTipCountForThetaAllocation(childNode);
-  const thetaAllocation = (tipCount / parentTipCount) * parentThetaAllocation;
-  const thetaMin = parentThetaMin;
+
+  const thetaAllocation =
+    parentTipCount > 0
+      ? (tipCount / parentTipCount) * parentThetaAllocation
+      : 0;
   const thetaMax = thetaMin + thetaAllocation;
   const theta = thetaMin + (thetaMax - thetaMin) / 2;
   const radius = getNodeAttr(childNode, "div") - mrcaDiv;

@@ -55,50 +55,83 @@ export const ForceGraphLegend = (props: ForceGraphLegendProps) => {
 
   return (
     <g id="force-graph-legend">
-      <rect
-        x={0}
-        y={0}
-        width={legendWidth}
-        height={legendHeight}
-        fill="white"
-        opacity={0.8}
-      />
-      {colorScale.map((cs, i) => drawColorScaleSegment(cs, i))}
-      <text x={paddingX} y={paddingY} fontSize={10}>
-        Distance from putative primary case
-      </text>
-      <rect
-        x={paddingX}
-        y={markerStartY}
-        width={glyphWidth}
-        height={glyphWidth}
-        fill={"lightGray"}
-        stroke="darkGray"
-      />
-      <text
-        x={textX}
-        y={markerStartY + glyphHeight / 2}
-        fontSize={10}
-        dominantBaseline="middle"
-      >
-        Your samples of interest
-      </text>
-      <circle
-        cx={glyphCenterX}
-        cy={markerStartY + glyphHeight + paddingY}
-        r={glyphWidth / 1.85}
-        fill="lightGray"
-        stroke="darkGray"
-      />
-      <text
-        x={textX}
-        y={markerStartY + glyphHeight + paddingY}
-        dominantBaseline="middle"
-        fontSize={10}
-      >
-        Other samples
-      </text>
-      <line
+      <g id="color-bar">
+        <rect
+          x={0}
+          y={0}
+          width={legendWidth}
+          height={legendHeight}
+          fill="white"
+          opacity={0.8}
+        />
+        {colorScale.map((cs, i) => drawColorScaleSegment(cs, i))}
+        <text x={paddingX} y={paddingY} fontSize={10}>
+          Distance from putative primary case
+        </text>
+      </g>
+      <g id="primary-case">
+        <rect
+          x={paddingX}
+          y={markerStartY}
+          width={glyphWidth}
+          height={glyphWidth}
+          fill={"lightGray"}
+          stroke="darkGray"
+        />
+        <text
+          x={textX}
+          y={markerStartY + glyphHeight / 2}
+          fontSize={10}
+          dominantBaseline="middle"
+        >
+          Primary case of this cluster
+        </text>
+      </g>
+      <g id="other samples">
+        <circle
+          cx={glyphCenterX}
+          cy={markerStartY + glyphHeight + paddingY}
+          r={glyphWidth / 1.85}
+          fill="lightGray"
+          stroke="darkGray"
+        />
+
+        <text
+          x={textX}
+          y={markerStartY + glyphHeight + paddingY}
+          dominantBaseline="middle"
+          fontSize={10}
+        >
+          Other samples
+        </text>
+      </g>
+      <g id="samples of interest">
+        <line
+          x1={glyphCenterX - glyphWidth / 2}
+          x2={glyphCenterX + glyphWidth / 2}
+          y1={markerStartY + glyphHeight * 2 + paddingY * 3}
+          y2={markerStartY + glyphHeight * 2 + paddingY * 3}
+          stroke="darkGray"
+          strokeWidth={3}
+        />
+        <line
+          x1={glyphCenterX}
+          x2={glyphCenterX}
+          y1={markerStartY + glyphHeight * 2 + paddingY * 3 - glyphHeight / 2}
+          y2={markerStartY + glyphHeight * 2 + paddingY * 3 + glyphHeight / 2}
+          stroke="darkGray"
+          strokeWidth={3}
+        />
+        <text
+          x={textX}
+          y={markerStartY + glyphHeight * 2 + paddingY * 3}
+          dominantBaseline="middle"
+          fontSize={10}
+        >
+          Sample(s) of interest
+        </text>
+      </g>
+      {/* <line
         x1={paddingX}
         x2={paddingX + tickBarLength}
         y1={tickBarStartY}
@@ -125,8 +158,8 @@ export const ForceGraphLegend = (props: ForceGraphLegendProps) => {
         y1={tickBarStartY + glyphHeight / 2}
         y2={tickBarStartY - glyphHeight / 2}
         stroke="darkgray"
-      />
-      <text
+      /> */}
+      {/* <text
         x={paddingX}
         y={tickBarStartY + glyphHeight + paddingY}
         dominantBaseline="bottom"
@@ -134,7 +167,7 @@ export const ForceGraphLegend = (props: ForceGraphLegendProps) => {
         width={tickBarLength}
       >
         Ticks each 1 mutation
-      </text>
+      </text> */}
       {/* <line x1={}/> */}
     </g>
   );

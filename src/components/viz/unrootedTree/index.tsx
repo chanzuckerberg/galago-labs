@@ -6,6 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Theme from "../../../theme";
 import { Node } from "../../../d";
 import { initializeEqualAnglePolarCoordinates } from "../../../utils/unrootedTreeLayout";
+import { Tooltip, useTooltip } from "@visx/tooltip";
 
 type unrootedTreeProps = {
   chartHeight: number;
@@ -19,7 +20,7 @@ export const unrootedTree = (props: unrootedTreeProps) => {
   //@ts-ignore
   const state = useSelector((state) => state.global);
   const colorScale: [string, string, string] = [
-    Theme.palette.primary.main,
+    Theme.palette.primary.dark,
     Theme.palette.primary.light,
     //@ts-ignore
     Theme.palette.primary.lighter,
@@ -33,7 +34,7 @@ export const unrootedTree = (props: unrootedTreeProps) => {
     0,
     chartHeight,
   ]);
-
+  const [scaleDomainR, setScaleDomainR] = useState<[number, number]>([1, 10]);
   const [ready, setReady] = useState<boolean>(false);
 
   // only run the simulation (once) if the tree or the mrca is changed
@@ -42,11 +43,14 @@ export const unrootedTree = (props: unrootedTreeProps) => {
     const { minX, maxX, minY, maxY, maxSize } =
       initializeEqualAnglePolarCoordinates(state.mrca);
 
+    setScaleDomainR([1, maxSize]);
     setScaleDomainX([minX, maxX]);
     setScaleDomainY([minY, maxY]);
     setReady(true);
     // setReady(true);
   }, [state.mrca, state.tree]);
+
+  const tooltip = useTooltip();
 
   return (
     <div>
@@ -67,25 +71,6 @@ export const unrootedTree = (props: unrootedTreeProps) => {
           width={chartWidth}
           height={chartHeight}
         >
-          {/* <g
-          transform={`scale(0.5,0.5) translate{${chartMargin}, ${chartMargin}}`}
-        > */}
-          {/* <g id="forceLinks">
-            {positionedNodes &&
-              positionedLinks &&
-              positionedLinks.map((forceLink: forceLink) => (
-                <DrawForceLink
-                  forceLink={forceLink}
-                  forceNodes={positionedNodes}
-                  chartWidth={chartWidth}
-                  chartHeight={chartHeight}
-                  chartMargin={chartMargin}
-                  scaleDomainX={scaleDomainX}
-                  scaleDomainY={scaleDomainY}
-                />
-              ))}
-          </g> */}
-
           <DrawNodes
             mrca={state.mrca}
             colorScale={colorScale}
@@ -94,11 +79,18 @@ export const unrootedTree = (props: unrootedTreeProps) => {
             chartMargin={chartMargin}
             scaleDomainX={scaleDomainX}
             scaleDomainY={scaleDomainY}
+            scaleDomainR={scaleDomainR}
+            tooltip={tooltip}
           />
-          {/* <DrawLabels nodes={forceNodes} onNodeSelected={() => {}} /> */}
-
-          {/* <ForceGraphLegend colorScale={colorScale} /> */}
+          <ForceGraphLegend colorScale={colorScale} />
         </svg>
+      )}
+      {ready && tooltip.tooltipOpen && tooltip.tooltipData && (
+        <Tooltip top={tooltip.tooltipTop} left={tooltip.tooltipLeft}>
+          <div style={{ maxWidth: 150 }}>
+            <p>{tooltip.tooltipData.map((n: Node) => n.name).join(", ")}</p>
+          </div>
+        </Tooltip>
       )}
     </div>
   );

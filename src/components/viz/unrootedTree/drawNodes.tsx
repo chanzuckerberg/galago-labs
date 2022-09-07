@@ -8,6 +8,10 @@ import {
   get_dist,
   traverse_preorder,
 } from "../../../utils/treeMethods";
+import {
+  containsSamplesOfInterest,
+  getColor,
+} from "../../../utils/unrootedTree";
 
 type DrawNodesProps = {
   mrca: Node;
@@ -17,81 +21,146 @@ type DrawNodesProps = {
   chartMargin: number;
   scaleDomainX: [number, number];
   scaleDomainY: [number, number];
+  scaleDomainR: [number, number];
+  tooltip: any;
 };
 
-const outlineColor = "black"; //"rgba(80,80,80,1)";
+const outlineColor = "gray";
 
-const getColor = (
+const drawSampleOfInterestMarker = (
+  x: number,
+  y: number,
+  r: number,
+  color: string
+) => {
+  return (
+    <g className="sample of interest marker">
+      <line
+        x1={x - r}
+        x2={x + r}
+        y1={y}
+        y2={y}
+        stroke={color}
+        strokeWidth={r / 2}
+      />
+      <line
+        x1={x}
+        x2={x}
+        y1={y - r}
+        y2={y + r}
+        stroke={color}
+        strokeWidth={r / 2}
+      />
+    </g>
+  );
+};
+
+const drawSquare = (
   node: Node,
   mrca: Node,
-  muts_per_trans_minmax: number,
-  colorScale: [string, string, string]
+  mutsPerTransmissionMax: number,
+  samplesOfInterestNames: string[],
+  colorScale: [string, string, string],
+  scaleX: Function,
+  scaleY: Function,
+  scaleR: Function,
+  tooltip: any
 ) => {
-  const distanceFromMrca = get_dist([node, mrca]);
+  const [color, markerColor] = getColor(
+    node,
+    mrca,
+    mutsPerTransmissionMax,
+    colorScale
+  );
+  const size = scaleR(Math.max(5, getNodeAttr(node, "nodeSize")));
+  const x = scaleX(getNodeAttr(node, "x"));
+  const y = scaleY(getNodeAttr(node, "y"));
+  let nodes = node.children.filter(
+    (ch: Node) => ch.branch_attrs.length === 0 && ch.children.length === 0
+  );
 
-  //@ts-ignore -- not sure why the `extend` works for forceLink but not forceNode in d.ts
-  if (distanceFromMrca === 0) {
-    return colorScale[0];
-    //@ts-ignore
-  } else if (
-    //@ts-ignore
-    distanceFromMrca <=
-    muts_per_trans_minmax * 2
-  ) {
-    return colorScale[1];
-  } else {
-    return colorScale[2];
-  }
+  return (
+    <g className="mrca node">
+      <rect
+        x={x - size}
+        y={y - size}
+        width={2 * size}
+        height={2 * size}
+        fill={color}
+        key={`node-${uuid()}`}
+        stroke={outlineColor}
+        opacity={0.95}
+        onMouseMove={() => {
+          tooltip.showTooltip({
+            tooltipData: nodes,
+            tooltipLeft: x,
+            tooltipTop: y,
+          });
+        }}
+        onMouseLeave={() => {
+          tooltip.hideTooltip();
+        }}
+      />
+      {containsSamplesOfInterest(node, samplesOfInterestNames) &&
+        drawSampleOfInterestMarker(x, y, size / 2, markerColor)}
+    </g>
+  );
 };
-
-// const drawSquare = (
-//   node: Node,
-//   mrca: Node,
-//   muts_per_trans_minmax: number,
-//   colorScale: [string, string, string],
-//   scaleX: Function,
-//   scaleY: Function
-// ) => {
-//   const color = getColor(node, mrca, muts_per_trans_minmax, colorScale);
-//   return (
-//     <rect
-//       onClick={() => {}}
-//       className="node"
-//       x={scaleX(getNodeAttr(node, "x") - getNodeAttr(node, "nodeSize"))}
-//       y={scaleY(getNodeAttr(node, "y") - getNodeAttr(node, "nodeSize"))}
-//       width={2 * getNodeAttr(node, "nodeSize")}
-//       height={2 * getNodeAttr(node, "nodeSize")}
-//       fill={color}
-//       key={`node-${uuid()}`}
-//       stroke={outlineColor}
-//       opacity={0.95}
-//     ></rect>
-//   );
-// };
 
 const drawCircle = (
   node: Node,
   mrca: Node,
-  muts_per_trans_minmax: number,
+  mutsPerTransmissionMax: number,
+  samplesOfInterestNames: string[],
   colorScale: [string, string, string],
   scaleX: Function,
-  scaleY: Function
+  scaleY: Function,
+  scaleR: Function,
+  tooltip: any
 ) => {
-  const color = getColor(node, mrca, muts_per_trans_minmax, colorScale);
+  const [color, markerColor] = getColor(
+    node,
+    mrca,
+    mutsPerTransmissionMax,
+    colorScale
+  );
+
+  const x = scaleX(getNodeAttr(node, "x"));
+  const y = scaleY(getNodeAttr(node, "y"));
+  const size = scaleR(getNodeAttr(node, "nodeSize"));
+  let nodes = [node];
+  nodes.concat(
+    node.children.filter(
+      (ch: Node) => ch.branch_attrs.length === 0 && ch.children.length === 0
+    )
+  );
 
   return (
-    <circle
-      onClick={() => {}}
-      className="node"
-      cx={scaleX(getNodeAttr(node, "x"))}
-      cy={scaleY(getNodeAttr(node, "y"))}
-      r={4}
-      // r={getNodeAttr(node, "nodeSize")}
-      fill={color}
-      key={`node-${uuid()}`}
-      opacity={0.95}
-      stroke={outlineColor}
-    ></circle>
+    <g className="node">
+      <circle
+        onClick={() => {}}
+        className="node"
+        cx={x}
+        cy={y}
+        r={size}
+        fill={color}
+        key={`node-${uuid()}`}
+        opacity={0.95}
+        stroke={outlineColor}
+        onMouseMove={() => {
+          tooltip.showTooltip({
+            tooltipData: nodes,
+            tooltipLeft: x,
+            tooltipTop: y,
+          });
+        }}
+        onMouseLeave={() => {
+          tooltip.hideTooltip();
+        }}
+      />
+      {containsSamplesOfInterest(node, samplesOfInterestNames) &&
+        drawSampleOfInterestMarker(x, y, size / 2, markerColor)}
+    </g>
   );
 };
 
@@ -103,6 +172,8 @@ export const DrawNodes = (props: DrawNodesProps) => {
     chartMargin,
     scaleDomainX,
     scaleDomainY,
+    scaleDomainR,
+    tooltip,
   } = props;
 
   const scaleX = d3
@@ -115,23 +186,44 @@ export const DrawNodes = (props: DrawNodesProps) => {
     .domain(scaleDomainY)
     .range([chartMargin, chartHeight - chartMargin]);
 
+  const scaleR = d3.scaleLinear().domain(scaleDomainR).range([6, 20]);
+
   // @ts-ignore
   const state = useSelector((state) => state.global);
 
-  const nodes = traverse_preorder(state.mrca);
+  // only draw nodes with size > 0 (i.e., internal nodes with polytomies and leaves that aren't already polytomies)
+  const nodesToDraw = traverse_preorder(state.mrca).filter(
+    (n: Node) => getNodeAttr(n, "nodeSize") > 0
+  );
+
+  // only draw links to internal nodes & non-polytomy leaves
+  const linksToDraw = traverse_preorder(state.mrca).filter((n: Node) => {
+    if (n.children.length === 0 && getNodeAttr(n, "nodeSize") > 0) {
+      return true;
+    } else if (n.children.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  });
 
   return (
     <g className="nodes">
-      {nodes.map((node: Node) => {
-        if (node.parent && node !== state.mrca) {
+      {linksToDraw.map((node: Node) => {
+        if (
+          node.parent &&
+          node !== state.mrca //&&
+          // getNodeAttr(node, "nodeSize") > 0
+        ) {
           return (
             <line
               className="link"
-              x1={scaleX(getNodeAttr(node, "x"))}
-              x2={scaleX(getNodeAttr(node.parent, "x"))}
-              y1={scaleY(getNodeAttr(node, "y"))}
-              y2={scaleY(getNodeAttr(node.parent, "y"))}
+              x1={scaleX(getNodeAttr(node.parent, "x"))}
+              x2={scaleX(getNodeAttr(node, "x"))}
+              y1={scaleY(getNodeAttr(node.parent, "y"))}
+              y2={scaleY(getNodeAttr(node, "y"))}
               stroke={"gray"}
+              markerEnd={"url(#arrowHead)"}
               // onMouseOver={(event) => {
               //   onMouseOverHandler(event);
               // }}
@@ -143,32 +235,36 @@ export const DrawNodes = (props: DrawNodesProps) => {
           );
         }
       })}
-      {nodes.map((node: Node) => {
-        //@ts-ignore
-        return drawCircle(
+
+      {nodesToDraw.map((node: Node) => {
+        if (getNodeAttr(node, "nodeSize") > 0) {
           //@ts-ignore
-          node,
-          state.mrca,
-          state.mutsPerTransmissionMax,
-          colorScale,
-          scaleX,
-          scaleY
-        );
+          return drawCircle(
+            //@ts-ignore
+            node,
+            state.mrca,
+            state.mutsPerTransmissionMax,
+            state.samplesOfInterestNames,
+            colorScale,
+            scaleX,
+            scaleY,
+            scaleR,
+            tooltip
+          );
+        }
       })}
 
-      {/* {nodes.map((node: Node) => {
-        return (
-          <text
-            x={scaleX(getNodeAttr(node, "x"))}
-            y={scaleY(getNodeAttr(node, "y"))}
-          >
-            {`${getNodeAttr(node, "thetaMin").toFixed(2)} ${getNodeAttr(
-              node,
-              "thetaMax"
-            ).toFixed(2)}`}
-          </text>
-        );
-      })} */}
+      {drawSquare(
+        state.mrca,
+        state.mrca,
+        state.mutsPerTransmissionMax,
+        state.samplesOfInterestNames,
+        colorScale,
+        scaleX,
+        scaleY,
+        scaleR,
+        tooltip
+      )}
     </g>
   );
 };

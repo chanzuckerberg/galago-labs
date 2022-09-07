@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
 import { useWindowSize } from "@react-hook/window-size";
-import { FetchError } from "./fetchError";
+import { FetchError } from "./fetchErrorBanner";
 import { BetaBanner } from "./betaBanner";
 import StagingBanner from "./stagingBanner";
 

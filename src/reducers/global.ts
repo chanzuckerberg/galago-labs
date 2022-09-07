@@ -66,6 +66,7 @@ const defaultState = {
     displayError: false, // Should we display error about fetch to user?
   },
   treeTitle: "",
+  showTreeFormatError: false,
 };
 
 export const global = (state = defaultState, action: any) => {
@@ -76,6 +77,24 @@ export const global = (state = defaultState, action: any) => {
 
     case "reset to default": {
       return defaultState;
+    }
+
+    case ACTION_TYPES.SHOW_TREE_FORMAT_ERROR: {
+      return {
+        ...state,
+        showTreeFormatError: true,
+        tree: null,
+        treeTitle: "Invalid JSON",
+      };
+    }
+
+    case ACTION_TYPES.CLEAR_TREE_FORMAT_ERROR: {
+      // we clear the error banner when a new tree is successfully uploaded, so any tree we set to null here is an invalid json
+      return {
+        ...state,
+        showTreeFormatError: false,
+        treeTitle: "",
+      };
     }
 
     case "pathogen selected": {
@@ -181,6 +200,7 @@ export const global = (state = defaultState, action: any) => {
       return {
         ...defaultState,
         tree: tree,
+        showTreeFormatError: false,
         pathogen: "sarscov2",
         haveInternalNodeDates: haveInternalNodeDates,
         metadataEntries: tidyMetadata,
@@ -340,6 +360,7 @@ export const global = (state = defaultState, action: any) => {
         tree,
         treeTitle,
         divisionOptions,
+        showTreeFormatError: false,
         mrcaOptions: traverse_preorder(tree).filter(
           (node: Node) => node.children.length >= 2
         ),
@@ -358,6 +379,7 @@ export const global = (state = defaultState, action: any) => {
           ...state.fetchData,
           fetchInProcess: true,
           targetUrl,
+          showTreeFormatError: false,
         },
       };
     }
@@ -382,6 +404,7 @@ export const global = (state = defaultState, action: any) => {
       return {
         ...state,
         tree: tree,
+        showTreeFormatError: false,
         divisionOptions: divisionOptions,
         mrcaOptions: traverse_preorder(tree).filter(
           (node: Node) => node.children.length >= 2
@@ -409,6 +432,7 @@ export const global = (state = defaultState, action: any) => {
           errorDuringFetch: true,
           errorMessage,
           displayError: true,
+          showTreeFormatError: false,
         },
       };
     }

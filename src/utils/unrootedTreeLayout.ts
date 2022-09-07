@@ -6,6 +6,11 @@ const polarToCartesian = (theta: number, radius: number) => {
 };
 
 const getPolytomySize = (node: Node) => {
+  // how many sample(s) should be represented by this node?
+  // leaves take up space for themselves, unless they're part of a polytomy (in which case that space is already allocated to their parent).
+  if (node.children.length === 0) {
+    return node.branch_attrs.length === 0 ? 0 : 1;
+  }
   // internal nodes get size allocated based on N direct descendent leaves with branch length 0
   return node.children.filter(
     (child: Node) =>
@@ -14,15 +19,15 @@ const getPolytomySize = (node: Node) => {
 };
 
 const getTipCountForThetaAllocation = (node: Node) => {
-  // how many sample(s) should be represented by this node?
-  return node.children.length === 0 ? 1 : getNodeAttr(node, "tipCount");
-  // if (node.children.length === 0) {
-  //   // leaves represent just themselves unless they're part of a polytomy (then they are already represented by their parent)
-  //   return node.branch_attrs.length === 0 ? 0 : 1;
-  // } else {
-  //   // nodes represent all the tips that descend from them, but the polytomy leaves are represented in circle size, not angular space
-  //   return getNodeAttr(node, "tipCount") - getPolytomySize(node);
-  // }
+  // how much angular space (i.e., theta) should this node take up?
+
+  if (node.children.length === 0) {
+    // leaves represent just themselves unless they're part of a polytomy (then they are already represented by their parent)
+    return node.branch_attrs.length === 0 ? 0 : 1;
+  } else {
+    // nodes represent all the tips that descend from them, but the polytomy leaves are represented in circle size, not angular space
+    return getNodeAttr(node, "tipCount") - getPolytomySize(node);
+  }
 };
 
 const assignCoordinatesToChild = (

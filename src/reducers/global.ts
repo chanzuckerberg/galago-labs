@@ -368,6 +368,14 @@ export const global = (state = defaultState, action: any) => {
         cladeSliderValue: formatMrcaSliderOptionValue(tree, cladeSliderField),
         mrca: tree,
         metadataCensus: { ...state.metadataCensus, ...treeMetadata },
+        fetchData: {
+          // edge case -- tried to fetch, errored, then uploaded manually -- clear fetch state including errors
+          fetchInProcess: false,
+          targetUrl: "",
+          errorDuringFetch: false,
+          errorMessage: "",
+          displayError: false,
+        },
       };
     }
 
@@ -379,7 +387,6 @@ export const global = (state = defaultState, action: any) => {
           ...state.fetchData,
           fetchInProcess: true,
           targetUrl,
-          showTreeFormatError: false,
         },
       };
     }
@@ -418,6 +425,7 @@ export const global = (state = defaultState, action: any) => {
         fetchData: {
           ...state.fetchData,
           fetchInProcess: false,
+          displayError: false,
         },
       };
     }

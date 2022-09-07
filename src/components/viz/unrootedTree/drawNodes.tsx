@@ -27,32 +27,15 @@ type DrawNodesProps = {
 
 const outlineColor = "gray";
 
-const drawSampleOfInterestMarker = (
-  x: number,
-  y: number,
-  r: number,
-  color: string
-) => {
-  return (
-    <g className="sample of interest marker">
-      <line
-        x1={x - r}
-        x2={x + r}
-        y1={y}
-        y2={y}
-        stroke={color}
-        strokeWidth={r / 2}
-      />
-      <line
-        x1={x}
-        x2={x}
-        y1={y - r}
-        y2={y + r}
-        stroke={color}
-        strokeWidth={r / 2}
-      />
-    </g>
-  );
+const tipsRepresented = (node: Node) => {
+  if (node.children.length === 0) {
+    return [node];
+  } else {
+    return node.children.filter(
+      (child: Node) =>
+        child.children.length === 0 && child.branch_attrs.length === 0
+    );
+  }
 };
 
 const drawSquare = (
@@ -74,9 +57,6 @@ const drawSquare = (
   const size = scaleR(Math.max(5, getNodeAttr(node, "nodeSize")));
   const x = scaleX(getNodeAttr(node, "x"));
   const y = scaleY(getNodeAttr(node, "y"));
-  let nodes = node.children.filter(
-    (ch: Node) => ch.branch_attrs.length === 0 && ch.children.length === 0
-  );
 
   return (
     <g className="square node">
@@ -91,7 +71,7 @@ const drawSquare = (
         opacity={0.95}
         onMouseMove={() => {
           tooltip.showTooltip({
-            tooltipData: nodes,
+            tooltipData: tipsRepresented(node),
             tooltipLeft: x,
             tooltipTop: y,
           });
@@ -124,12 +104,6 @@ const drawCircle = (
   const x = scaleX(getNodeAttr(node, "x"));
   const y = scaleY(getNodeAttr(node, "y"));
   const size = scaleR(getNodeAttr(node, "nodeSize"));
-  let nodes = [node];
-  nodes.concat(
-    node.children.filter(
-      (ch: Node) => ch.branch_attrs.length === 0 && ch.children.length === 0
-    )
-  );
 
   return (
     <g className="circle node">
@@ -145,7 +119,7 @@ const drawCircle = (
         stroke={outlineColor}
         onMouseMove={() => {
           tooltip.showTooltip({
-            tooltipData: nodes,
+            tooltipData: tipsRepresented(node),
             tooltipLeft: x,
             tooltipTop: y,
           });

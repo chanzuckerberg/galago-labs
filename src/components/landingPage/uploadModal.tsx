@@ -77,6 +77,8 @@ export const UploadModal = () => {
     <>
       <DialogTitle>Analyze your data in Galago</DialogTitle>
       <DialogContent>
+        <h3>Tree uploaded</h3>
+        <p>{state.treeTitle}</p>
         <h3>Select pathogen (required)</h3>
 
         <p>

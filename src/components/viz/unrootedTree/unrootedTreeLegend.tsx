@@ -1,10 +1,10 @@
 import { useSelector } from "react-redux";
 
-type ForceGraphLegendProps = {
+type UnrootedTreeLegendProps = {
   colorScale: string[];
 };
 
-export const ForceGraphLegend = (props: ForceGraphLegendProps) => {
+export const UnrootedTreeLegend = (props: UnrootedTreeLegendProps) => {
   const { colorScale } = props;
   const legendWidth = 195;
   const legendHeight = 160;
@@ -148,4 +148,4 @@ export const ForceGraphLegend = (props: ForceGraphLegendProps) => {
   );
 };
 
-export default ForceGraphLegend;
+export default UnrootedTreeLegend;

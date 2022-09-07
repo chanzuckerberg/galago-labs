@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import DrawNodes from "./drawNodes";
-import ForceGraphLegend from "./drawLegend";
+import DrawUnrootedTree from "./drawUnrootedTree";
+import UnrootedTreeLegend from "./unrootedTreeLegend";
 import CircularProgress from "@mui/material/CircularProgress";
 import Theme from "../../../theme";
 import { Node } from "../../../d";
@@ -71,8 +71,7 @@ export const unrootedTree = (props: unrootedTreeProps) => {
           width={chartWidth}
           height={chartHeight}
         >
-          <DrawNodes
-            mrca={state.mrca}
+          <DrawUnrootedTree
             colorScale={colorScale}
             chartWidth={chartWidth}
             chartHeight={chartHeight}
@@ -82,12 +81,13 @@ export const unrootedTree = (props: unrootedTreeProps) => {
             scaleDomainR={scaleDomainR}
             tooltip={tooltip}
           />
-          <ForceGraphLegend colorScale={colorScale} />
+          <UnrootedTreeLegend colorScale={colorScale} />
         </svg>
       )}
       {ready && tooltip.tooltipOpen && tooltip.tooltipData && (
         <Tooltip top={tooltip.tooltipTop} left={tooltip.tooltipLeft}>
           <div style={{ maxWidth: 150 }}>
+            {/* @ts-ignore */}
             <p>{tooltip.tooltipData.map((n: Node) => n.name).join(", ")}</p>
           </div>
         </Tooltip>

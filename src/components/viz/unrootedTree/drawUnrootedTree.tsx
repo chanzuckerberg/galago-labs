@@ -13,8 +13,7 @@ import {
   getColor,
 } from "../../../utils/unrootedTree";
 
-type DrawNodesProps = {
-  mrca: Node;
+type DrawUnrootedTreeProps = {
   colorScale: [string, string, string];
   chartWidth: number;
   chartHeight: number;
@@ -132,7 +131,7 @@ const drawCircle = (
   );
 };
 
-export const DrawNodes = (props: DrawNodesProps) => {
+export const DrawUnrootedTree = (props: DrawUnrootedTreeProps) => {
   const {
     colorScale,
     chartWidth,
@@ -231,4 +230,4 @@ export const DrawNodes = (props: DrawNodesProps) => {
   );
 };
 
-export default DrawNodes;
+export default DrawUnrootedTree;

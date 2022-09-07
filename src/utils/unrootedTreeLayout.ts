@@ -1,5 +1,34 @@
 import { Node } from "../d";
-import { getNodeAttr, traverse_preorder } from "./treeMethods";
+import { getNodeAttr, get_dist, traverse_preorder } from "./treeMethods";
+
+export const getColor = (
+  node: Node,
+  mrca: Node,
+  mutsPerTransmissionMax: number,
+  colorScale: [string, string, string]
+) => {
+  const distanceFromMrca = get_dist([node, mrca]);
+
+  if (distanceFromMrca === 0) {
+    return [colorScale[0], "white"];
+  } else if (distanceFromMrca <= mutsPerTransmissionMax * 2) {
+    return [colorScale[1], "white"];
+  } else {
+    return [colorScale[2], "black"];
+  }
+};
+
+export const containsSamplesOfInterest = (
+  node: Node,
+  samplesOfInterestNames: string[]
+) => {
+  return (
+    samplesOfInterestNames.includes(node.name) ||
+    node.children.filter((child: Node) =>
+      samplesOfInterestNames.includes(child.name)
+    ).length > 0
+  );
+};
 
 const polarToCartesian = (theta: number, radius: number) => {
   return { x: radius * Math.cos(theta), y: radius * Math.sin(theta) };

@@ -89,7 +89,6 @@ export const global = (state = defaultState, action: any) => {
     }
 
     case ACTION_TYPES.CLEAR_TREE_FORMAT_ERROR: {
-      // we clear the error banner when a new tree is successfully uploaded, so any tree we set to null here is an invalid json
       return {
         ...state,
         showTreeFormatError: false,
@@ -201,6 +200,7 @@ export const global = (state = defaultState, action: any) => {
         ...defaultState,
         tree: tree,
         showTreeFormatError: false,
+        fetchData: { displayError: false },
         pathogen: "sarscov2",
         haveInternalNodeDates: haveInternalNodeDates,
         metadataEntries: tidyMetadata,
@@ -404,13 +404,14 @@ export const global = (state = defaultState, action: any) => {
     case ACTION_TYPES.FETCH_TREE_DATA_SUCCEEDED: {
       // Almost entirely a copy of type "tree file uploaded"
       // Just adds tracking fetch and auto-open of upload modal
-      const { tree, haveInternalNodeDates } = action.data;
+      const { tree, haveInternalNodeDates, treeTitle } = action.data;
       const divisionOptions = get_division_input_options(tree, state.country);
       const treeMetadata = treeMetadataCensus(tree);
       const cladeSliderField = haveInternalNodeDates ? "num_date" : "div";
       return {
         ...state,
         tree: tree,
+        treeTitle: treeTitle,
         showTreeFormatError: false,
         divisionOptions: divisionOptions,
         mrcaOptions: traverse_preorder(tree).filter(
@@ -434,13 +435,13 @@ export const global = (state = defaultState, action: any) => {
       const { errorMessage } = action;
       return {
         ...state,
+        showTreeFormatError: false,
         fetchData: {
           ...state.fetchData,
           fetchInProcess: false,
           errorDuringFetch: true,
           errorMessage,
           displayError: true,
-          showTreeFormatError: false,
         },
       };
     }

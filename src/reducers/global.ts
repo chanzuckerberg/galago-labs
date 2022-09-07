@@ -25,6 +25,10 @@ import {
 } from "../utils/metadataUtils";
 import { describe_clade } from "../utils/describeClade";
 import { formatMrcaSliderOptionValue } from "../components/viz/cladeSelection/cladeSlider";
+import {
+  calcMutsPerTransmissionMax,
+  pathogenParameters,
+} from "../utils/pathogenParameters";
 
 const defaultState = {
   samplesOfInterestNames: [], // literally just the names of the samplesOfInterest
@@ -57,7 +61,8 @@ const defaultState = {
   divisionOptions: [""],
   pathogen: "",
   mutsPerTransmissionMax: "",
-  fetchData: { // Everything around process of fetching data from external URL
+  fetchData: {
+    // Everything around process of fetching data from external URL
     fetchInProcess: false, // App is fetching data (takes a few seconds)
     targetUrl: "", // URL we were given to fetch
     errorDuringFetch: false, // Was there an error around fetch process
@@ -146,7 +151,6 @@ export const global = (state = defaultState, action: any) => {
     }
 
     case "load demo": {
-      // TODO: this should all probably live in an thunk + action constructor instead of duplicating code from a bunch of individual reducers. But, they're all short and this gets us off the ground for now.
       const { tree, haveInternalNodeDates } = ingestNextstrain(demo_tree);
       const treeMetadata = treeMetadataCensus(tree);
       const samplesOfInterestNames = demo_sample_names
@@ -176,24 +180,32 @@ export const global = (state = defaultState, action: any) => {
 
       const cladeSliderField = haveInternalNodeDates ? "num_date" : "div";
 
+      const sc2Parameters: any = pathogenParameters["sarscov2"];
+      const mutsPerTransmissionMax = calcMutsPerTransmissionMax(
+        sc2Parameters["genomeLength"],
+        sc2Parameters["subsPerSitePerYear"],
+        sc2Parameters["serialInterval"]
+      );
+
       return {
         ...defaultState,
-        tree: tree,
+        tree,
         pathogen: "sarscov2",
-        haveInternalNodeDates: haveInternalNodeDates,
+        mutsPerTransmissionMax,
+        haveInternalNodeDates,
         metadataEntries: tidyMetadata,
         metadataCensus: { ...treeMetadata, ...metadataCensus },
         metadataFieldToMatch: "sample id",
-        samplesOfInterestNames: samplesOfInterestNames,
-        samplesOfInterest: samplesOfInterest,
-        mrca: mrca,
+        samplesOfInterestNames,
+        samplesOfInterest,
+        mrca,
         //@ts-ignore -- we already check for null samples on the line above
         mrcaOptions: getMrcaOptions(tree, samplesOfInterest, []),
         location: "Humboldt County",
         division: "California",
         loadReport: true,
-        cladeDescription: cladeDescription,
-        cladeSliderField: cladeSliderField,
+        cladeDescription,
+        cladeSliderField,
         cladeSliderValue: formatMrcaSliderOptionValue(mrca, cladeSliderField),
       };
     }

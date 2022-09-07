@@ -1,5 +1,6 @@
 import { Collapse, Alert, AlertTitle } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
+import { ACTION_TYPES } from "../../reducers/actionTypes";
 
 export const FetchError = () => {
   //@ts-ignore
@@ -18,7 +19,7 @@ export const FetchError = () => {
           right: 0,
         }}
         onClose={() => {
-          dispatch({ type: "fetch error cleared" });
+          dispatch({ type: ACTION_TYPES.FETCH_ERROR_MSG_CLEAR });
         }}
       >
         <AlertTitle>

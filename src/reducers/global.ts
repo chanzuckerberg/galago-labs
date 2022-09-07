@@ -362,7 +362,7 @@ export const global = (state = defaultState, action: any) => {
       };
     }
 
-    case ACTION_TYPES.FETCH_ERROR_CLEAR: {
+    case ACTION_TYPES.FETCH_ERROR_MSG_CLEAR: {
       return {
         ...state,
         fetchData: {

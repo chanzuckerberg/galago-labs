@@ -124,12 +124,11 @@ export const initializeEqualAnglePolarCoordinates = (mrca: Node) => {
   let minMaxValues = { minX: 0, maxX: 0, minY: 0, maxY: 0, maxSize: 0 };
 
   orderedNodes.forEach((parentNode: Node) => {
+    // leaves have their coordinates assigned when we visit their parents, no need to visit directly
     if (parentNode.children.length > 0) {
-      // leaves have their coordinates assigned when we visit their parents, no need to visit directly
-
       if (!parentNode.parent || parentNode === mrca) {
         /*
-    Initialize directly with starting values
+    Initialize root of the (sub)tree directly with starting values
     After this initialization we only look forward / alter the child nodes at each step
     */
         parentThetaMin = 0;
@@ -148,7 +147,6 @@ export const initializeEqualAnglePolarCoordinates = (mrca: Node) => {
           nodeSize,
         };
 
-        // update node size (others are 0 for the parent -- ie the default anyways)
         minMaxValues = updateMinMaxValues(parentNode, minMaxValues);
       } else {
         /* Then, for each internal node in the tree, pull its pre-assigned coordinates*/
@@ -156,27 +154,26 @@ export const initializeEqualAnglePolarCoordinates = (mrca: Node) => {
         parentThetaMax = getNodeAttr(parentNode, "thetaMax");
         parentThetaAllocation = parentThetaMax - parentThetaMin;
       }
-
-      let offsetFromParentThetaMin = 0;
       /* Whether the current `parentNode` we're iterating over is the root or an internal node, assign coordinates to each of its direct descendents.*/
       const parentTipCount = getTipCountForThetaAllocation(parentNode);
 
+      let thetaMin = parentThetaMin;
       for (let i = 0; i < parentNode.children.length; i++) {
         const childNode = parentNode.children[i];
+        const childTipCount = getTipCountForThetaAllocation(childNode);
 
         assignCoordinatesToChild(
           childNode,
           parentThetaAllocation,
           parentTipCount,
-          parentThetaMin + offsetFromParentThetaMin,
+          thetaMin,
           mrcaDiv
         );
 
-        const type = childNode.children.length === 0 ? "LEAF" : "INTERNAL NODE";
-
-        offsetFromParentThetaMin +=
+        thetaMin +=
           getNodeAttr(childNode, "thetaMax") -
           getNodeAttr(childNode, "thetaMin");
+
         minMaxValues = updateMinMaxValues(childNode, minMaxValues);
       }
     } else {

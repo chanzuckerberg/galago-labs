@@ -59,7 +59,6 @@ const drawSquare = (
   node: Node,
   mrca: Node,
   mutsPerTransmissionMax: number,
-  samplesOfInterestNames: string[],
   colorScale: [string, string, string],
   scaleX: Function,
   scaleY: Function,
@@ -80,7 +79,7 @@ const drawSquare = (
   );
 
   return (
-    <g className="mrca node">
+    <g className="square node">
       <rect
         x={x - size}
         y={y - size}
@@ -101,8 +100,6 @@ const drawSquare = (
           tooltip.hideTooltip();
         }}
       />
-      {containsSamplesOfInterest(node, samplesOfInterestNames) &&
-        drawSampleOfInterestMarker(x, y, size / 2, markerColor)}
     </g>
   );
 };
@@ -111,7 +108,6 @@ const drawCircle = (
   node: Node,
   mrca: Node,
   mutsPerTransmissionMax: number,
-  samplesOfInterestNames: string[],
   colorScale: [string, string, string],
   scaleX: Function,
   scaleY: Function,
@@ -136,7 +132,7 @@ const drawCircle = (
   );
 
   return (
-    <g className="node">
+    <g className="circle node">
       <circle
         onClick={() => {}}
         className="node"
@@ -158,8 +154,6 @@ const drawCircle = (
           tooltip.hideTooltip();
         }}
       />
-      {containsSamplesOfInterest(node, samplesOfInterestNames) &&
-        drawSampleOfInterestMarker(x, y, size / 2, markerColor)}
     </g>
   );
 };
@@ -210,11 +204,7 @@ export const DrawNodes = (props: DrawNodesProps) => {
   return (
     <g className="nodes">
       {linksToDraw.map((node: Node) => {
-        if (
-          node.parent &&
-          node !== state.mrca //&&
-          // getNodeAttr(node, "nodeSize") > 0
-        ) {
+        if (node.parent && node !== state.mrca) {
           return (
             <line
               className="link"
@@ -237,14 +227,24 @@ export const DrawNodes = (props: DrawNodesProps) => {
       })}
 
       {nodesToDraw.map((node: Node) => {
-        if (getNodeAttr(node, "nodeSize") > 0) {
+        if (containsSamplesOfInterest(node, state.samplesOfInterestNames)) {
+          return drawSquare(
+            node,
+            state.mrca,
+            state.mutsPerTransmissionMax,
+            colorScale,
+            scaleX,
+            scaleY,
+            scaleR,
+            tooltip
+          );
+        } else {
           //@ts-ignore
           return drawCircle(
             //@ts-ignore
             node,
             state.mrca,
             state.mutsPerTransmissionMax,
-            state.samplesOfInterestNames,
             colorScale,
             scaleX,
             scaleY,
@@ -253,18 +253,6 @@ export const DrawNodes = (props: DrawNodesProps) => {
           );
         }
       })}
-
-      {drawSquare(
-        state.mrca,
-        state.mrca,
-        state.mutsPerTransmissionMax,
-        state.samplesOfInterestNames,
-        colorScale,
-        scaleX,
-        scaleY,
-        scaleR,
-        tooltip
-      )}
     </g>
   );
 };

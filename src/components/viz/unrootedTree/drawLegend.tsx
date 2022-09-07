@@ -84,7 +84,7 @@ export const ForceGraphLegend = (props: ForceGraphLegendProps) => {
           fontSize={10}
           dominantBaseline="middle"
         >
-          Primary case of this cluster
+          Includes sample(s) of interest
         </text>
       </g>
       <g id="other samples">
@@ -105,32 +105,7 @@ export const ForceGraphLegend = (props: ForceGraphLegendProps) => {
           Other samples
         </text>
       </g>
-      <g id="samples of interest">
-        <line
-          x1={glyphCenterX - glyphWidth / 2}
-          x2={glyphCenterX + glyphWidth / 2}
-          y1={markerStartY + glyphHeight * 2 + paddingY * 3}
-          y2={markerStartY + glyphHeight * 2 + paddingY * 3}
-          stroke="darkGray"
-          strokeWidth={3}
-        />
-        <line
-          x1={glyphCenterX}
-          x2={glyphCenterX}
-          y1={markerStartY + glyphHeight * 2 + paddingY * 3 - glyphHeight / 2}
-          y2={markerStartY + glyphHeight * 2 + paddingY * 3 + glyphHeight / 2}
-          stroke="darkGray"
-          strokeWidth={3}
-        />
-        <text
-          x={textX}
-          y={markerStartY + glyphHeight * 2 + paddingY * 3}
-          dominantBaseline="middle"
-          fontSize={10}
-        >
-          Sample(s) of interest
-        </text>
-      </g>
+
       {/* <line
         x1={paddingX}
         x2={paddingX + tickBarLength}

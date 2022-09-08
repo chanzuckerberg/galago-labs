@@ -69,6 +69,8 @@ const defaultState = {
     errorMessage: "", // If error, human-readable message about the error.
     displayError: false, // Should we display error about fetch to user?
   },
+  treeTitle: "",
+  showTreeFormatError: false,
 };
 
 export const global = (state = defaultState, action: any) => {
@@ -79,6 +81,23 @@ export const global = (state = defaultState, action: any) => {
 
     case "reset to default": {
       return defaultState;
+    }
+
+    case ACTION_TYPES.SHOW_TREE_FORMAT_ERROR: {
+      return {
+        ...state,
+        showTreeFormatError: true,
+        tree: null,
+        treeTitle: "Invalid JSON",
+      };
+    }
+
+    case ACTION_TYPES.CLEAR_TREE_FORMAT_ERROR: {
+      return {
+        ...state,
+        showTreeFormatError: false,
+        treeTitle: "",
+      };
     }
 
     case "pathogen selected": {
@@ -189,7 +208,9 @@ export const global = (state = defaultState, action: any) => {
 
       return {
         ...defaultState,
-        tree,
+        tree: tree,
+        showTreeFormatError: false,
+        fetchData: { displayError: false },
         pathogen: "sarscov2",
         mutsPerTransmissionMax,
         haveInternalNodeDates,
@@ -338,7 +359,7 @@ export const global = (state = defaultState, action: any) => {
     }
 
     case "tree file uploaded": {
-      const { tree, haveInternalNodeDates } = action.data;
+      const { tree, treeTitle, haveInternalNodeDates } = action.data;
 
       const divisionOptions = get_division_input_options(tree, state.country);
       const treeMetadata = treeMetadataCensus(tree);
@@ -347,15 +368,21 @@ export const global = (state = defaultState, action: any) => {
 
       return {
         ...state,
-        tree: tree,
-        divisionOptions: divisionOptions,
+        tree,
+        treeTitle,
+        divisionOptions,
+        showTreeFormatError: false,
         mrcaOptions: traverse_preorder(tree).filter(
           (node: Node) => node.children.length >= 2
         ),
-        cladeSliderField: cladeSliderField,
+        cladeSliderField,
         cladeSliderValue: formatMrcaSliderOptionValue(tree, cladeSliderField),
         mrca: tree,
         metadataCensus: { ...state.metadataCensus, ...treeMetadata },
+        fetchData: {
+          // edge case -- tried to fetch, errored, then uploaded manually -- clear fetch state including errors
+          ...defaultState.fetchData,
+        },
       };
     }
 
@@ -371,16 +398,28 @@ export const global = (state = defaultState, action: any) => {
       };
     }
 
+    case ACTION_TYPES.FETCH_ERROR_MSG_CLEAR: {
+      return {
+        ...state,
+        fetchData: {
+          ...state.fetchData,
+          displayError: false,
+        },
+      };
+    }
+
     case ACTION_TYPES.FETCH_TREE_DATA_SUCCEEDED: {
       // Almost entirely a copy of type "tree file uploaded"
       // Just adds tracking fetch and auto-open of upload modal
-      const { tree, haveInternalNodeDates } = action.data;
+      const { tree, haveInternalNodeDates, treeTitle } = action.data;
       const divisionOptions = get_division_input_options(tree, state.country);
       const treeMetadata = treeMetadataCensus(tree);
       const cladeSliderField = haveInternalNodeDates ? "num_date" : "div";
       return {
         ...state,
         tree: tree,
+        treeTitle: treeTitle,
+        showTreeFormatError: false,
         divisionOptions: divisionOptions,
         mrcaOptions: traverse_preorder(tree).filter(
           (node: Node) => node.children.length >= 2
@@ -394,6 +433,7 @@ export const global = (state = defaultState, action: any) => {
         fetchData: {
           ...state.fetchData,
           fetchInProcess: false,
+          displayError: false,
         },
       };
     }
@@ -402,6 +442,7 @@ export const global = (state = defaultState, action: any) => {
       const { errorMessage } = action;
       return {
         ...state,
+        showTreeFormatError: false,
         fetchData: {
           ...state.fetchData,
           fetchInProcess: false,

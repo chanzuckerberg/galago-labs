@@ -4,7 +4,10 @@ import axios from "axios";
 import { getUrlToFetch } from "../utils/fetchData";
 import LandingPageRoute from "./landingPageRoute";
 import { ACTION_TYPES } from "../reducers/actionTypes";
-import { ingestNextstrain } from "../utils/nextstrainAdapter";
+import {
+  ingestNextstrain,
+  validateNextstrainJson,
+} from "../utils/nextstrainAdapter";
 
 /**
  * Handles fetching external tree JSON and loading it into app.
@@ -31,11 +34,7 @@ async function handleDataFetch(targetUrl: string, dispatch: Function) {
   try {
     response = await axios.get(targetUrl);
   } catch {
-    const errorMessage =
-      `Attempted to fetch data from URL: ${targetUrl}, but ` +
-      "there was a problem with fetching the data. Please confirm " +
-      "the URL is publicly accessible and has the appropriate CORS policy " +
-      "in place. You may want to look in your browser console.";
+    const errorMessage = `We weren't able to import your tree data. Please confirm this URL is correct and publicly accessible: ${targetUrl}`;
     dispatch({
       type: ACTION_TYPES.FETCH_TREE_DATA_FAILED,
       errorMessage,
@@ -43,13 +42,16 @@ async function handleDataFetch(targetUrl: string, dispatch: Function) {
     return; // Can't progress since fetch failed.
   }
 
-  // TODO Should have some kind of sanity check that we got a Nextstrain tree.
-  // If it fails sanity check, kick off an error message about malformed.
-  const ingestedNextstrain = ingestNextstrain(response.data);
-  dispatch({
-    type: ACTION_TYPES.FETCH_TREE_DATA_SUCCEEDED,
-    data: ingestedNextstrain,
-  });
+  try {
+    validateNextstrainJson(response.data);
+    const ingestedNextstrain = ingestNextstrain(response.data);
+    dispatch({
+      type: ACTION_TYPES.FETCH_TREE_DATA_SUCCEEDED,
+      data: ingestedNextstrain,
+    });
+  } catch {
+    dispatch({ type: ACTION_TYPES.SHOW_TREE_FORMAT_ERROR });
+  }
 }
 
 /**
@@ -75,8 +77,7 @@ const FetchTree = () => {
     } else {
       // Showed up at /fetch, but no URL given after that. Can't do anything.
       const errorMessage =
-        "On route for fetching external data, but no " +
-        "URL found to fetch data from. Please double-check your link.";
+        "We didn't receive a URL to fetch your tree json from. Please check your URL or upload your file directly below.";
       dispatch({
         type: ACTION_TYPES.FETCH_TREE_NO_URL_SPECIFIED,
         errorMessage,

@@ -3,6 +3,9 @@ import { useEffect } from "react";
 // The non-secret API key used to identify the app to Plausible.io
 // Pulled via Vite env var: https://vitejs.dev/guide/env-and-mode.html
 const PLAUSIBLE_KEY = import.meta.env.VITE_PLAUSIBLE_KEY as string;
+// `id` for <script> that kicks off Plausible loading. Mostly unimportant,
+// just exists as a failsafe to prevent accidentally loading it twice.
+const PLAUSIBLE_ELEMENT_ID = "plausible-loader-script-element";
 
 /**
  * Initializes Plausible.io analytics for anonymous usage statistics.
@@ -46,12 +49,16 @@ const PLAUSIBLE_KEY = import.meta.env.VITE_PLAUSIBLE_KEY as string;
 const PlausibleInitializer = () => {
   // Desire is to fire this only once ever. Should load when rest of app does.
   useEffect(() => {
-    // Only kick off running Plausible if we have an API key for it.
-    if (PLAUSIBLE_KEY) {
+    // Only kick off loading Plausible if we have not already loaded it (this
+    // should not happen, but failsafe because side-effects can sometimes do
+    // weird things in React) and we have a Plausible API key available.
+    const prevLoadedElement = document.getElementById(PLAUSIBLE_ELEMENT_ID);
+    if (!prevLoadedElement && PLAUSIBLE_KEY) {
       // This is the way to do vanilla scripts on React. It's weird. ¯\_(ツ)_/¯
       // StackOverflow what: https://stackoverflow.com/a/34425083
       // StackOverflow why: https://stackoverflow.com/a/64815699
       const script = document.createElement("script");
+      script.id = PLAUSIBLE_ELEMENT_ID;
       script.src = "https://plausible.io/js/script.exclusions.hash.local.js";
       script.setAttribute("data-domain", PLAUSIBLE_KEY);
       // `data-exclude` configured for a `HashRouter`. If we change, update here!

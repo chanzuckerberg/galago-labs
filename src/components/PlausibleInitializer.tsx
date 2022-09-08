@@ -47,6 +47,8 @@ const PLAUSIBLE_ELEMENT_ID = "plausible-loader-script-element";
  * remove that as well, but any localdev would then need to re-add it.
  */
 const PlausibleInitializer = () => {
+  // TODO REMOVE temp verification that .env process is working
+  console.log("Deploy verification. Do not merge!", import.meta.env); // REMOVE
   // Desire is to fire this only once ever. Should load when rest of app does.
   useEffect(() => {
     // Only kick off loading Plausible if we have not already loaded it (this

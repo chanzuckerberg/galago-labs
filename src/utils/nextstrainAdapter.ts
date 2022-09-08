@@ -80,7 +80,7 @@ export const validateNextstrainJson = (nextstrainJSON: NSJSON) => {
       Object.keys(nextstrainJSON).includes("meta")
     )
   ) {
-    throw new Error();
+    throw new Error("tree json missing top level key");
   }
   const tree = nextstrainJSON.tree;
   if (
@@ -88,14 +88,14 @@ export const validateNextstrainJson = (nextstrainJSON: NSJSON) => {
     !Object.keys(tree).includes("children") ||
     !Object.keys(tree).includes("name")
   ) {
-    throw new Error();
+    throw new Error("tree json root node missing name and/or children");
   }
   if (
     // all of the root node's children must have a name (might be tips which in nextstrain's schema do not have a `children` attribute)
     //@ts-ignore
     !tree.children.every((ch: NSNode) => Object.keys(ch).includes("name"))
   ) {
-    throw new Error();
+    throw new Error("tree json root node's child(ren) missing name");
   }
 };
 

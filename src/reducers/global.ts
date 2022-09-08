@@ -370,11 +370,7 @@ export const global = (state = defaultState, action: any) => {
         metadataCensus: { ...state.metadataCensus, ...treeMetadata },
         fetchData: {
           // edge case -- tried to fetch, errored, then uploaded manually -- clear fetch state including errors
-          fetchInProcess: false,
-          targetUrl: "",
-          errorDuringFetch: false,
-          errorMessage: "",
-          displayError: false,
+          ...defaultState.fetchData,
         },
       };
     }

@@ -27,8 +27,17 @@ jobs:
         env:
           GALAGO_MULTI_LINE_TEST: ${{ secrets.GALAGO_VITE_ENV_VARS }}
         run: |
+          ls -al
           echo "VOODOO preexisting contents of .env file"
           cat .env
+          echo "VOODOO counting chars of secret?!?"
+          echo -n "$GALAGO_VITE_ENV_VARS" | wc -m
+          echo "VOODOO counting chars again, but lets try curly"
+          echo -n "${GALAGO_VITE_ENV_VARS}" | wc -m
+          echo "VOODOO Pull a couple lines"
+          sed -n 1p .env
+          sed -n 2p .env
+          sed -n 3p .env
           echo Setting up Vite env vars file
           echo "$GALAGO_VITE_ENV_VARS" > .env
       - name: VOODOO troubleshooting env vars not working

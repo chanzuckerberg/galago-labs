@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 // The non-secret API key used to identify the app to Plausible.io
 // Pulled via Vite env var: https://vitejs.dev/guide/env-and-mode.html
-const PLAUSIBLE_KEY = import.meta.env.VITE_PLAUSIBLE_KEY as string;
+const PLAUSIBLE_KEY = import.meta.env.VITE_PLAUSIBLE_KEY as string | undefined;
 // `id` for <script> that kicks off Plausible loading. Mostly unimportant,
 // just exists as a failsafe to prevent accidentally loading it twice.
 const PLAUSIBLE_ELEMENT_ID = "plausible-loader-script-element";
@@ -47,8 +47,6 @@ const PLAUSIBLE_ELEMENT_ID = "plausible-loader-script-element";
  * remove that as well, but any localdev would then need to re-add it.
  */
 const PlausibleInitializer = () => {
-  // TODO REMOVE temp verification that .env process is working
-  console.log("Deploy verification. Do not merge!", import.meta.env); // REMOVE
   // Desire is to fire this only once ever. Should load when rest of app does.
   useEffect(() => {
     // Only kick off loading Plausible if we have not already loaded it (this

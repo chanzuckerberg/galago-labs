@@ -25,7 +25,7 @@ jobs:
         run: npm ci
       - name: Setting up Vite env vars
         env:
-          GALAGO_MULTI_LINE_TEST: ${{ secrets.GALAGO_VITE_ENV_VARS }}
+          GALAGO_VITE_ENV_VARS: ${{ secrets.GALAGO_VITE_ENV_VARS }}
         run: |
           ls -al
           echo "VOODOO preexisting contents of .env file"

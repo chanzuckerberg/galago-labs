@@ -27,8 +27,25 @@ jobs:
         env:
           GALAGO_MULTI_LINE_TEST: ${{ secrets.GALAGO_VITE_ENV_VARS }}
         run: |
-          echo Dropping in env file
+          echo "VOODOO preexisting contents of .env file"
+          cat .env
+          echo Setting up Vite env vars file
           echo "$GALAGO_VITE_ENV_VARS" > .env
+      - name: VOODOO troubleshooting env vars not working
+        run: |
+          pwd
+          ls -al
+          sed -n 1p .env
+          sed -n 2p .env
+          sed -n 3p .env
+          sed -n 4p .env
+          sed -n 5p .env
+          sed -n 6p .env
+          sed -n 7p .env
+          sed -n 8p .env
+          sed -n 9p .env
+          sed -n 10p .env
+          echo "echoed lines, how did it go?"
       - name: Build app
         # As configured in Aug 2022, `vite build` outputs to `dist` folder.
         run: npm run build

@@ -4,18 +4,6 @@
 
 This is a prototype repository for research related to making genomic epidemiology more accessible and interpretable through narrative and visual reports. Currently, galago is a serverless, standalone web application that ingests phylogenetic trees and renders responsive reports containing insights about clades or outbreaks of interest. Contact sidneymbell@chanzuckerberg.com with any questions or comments.
 
-## Using a Public Data Source
-
-If you have a publicly available Nextstrain JSON tree, you can automatically fetch and use it by accessing the site through the `fetch` path.
-
-```
-https://galago.czgenepi.org/#/fetch/YOUR_DATA_URL_HERE
- --- for example... ---
-https://galago.czgenepi.org/#/fetch/example.com/sometree.json
-```
-
-The above example would load Galago using the tree file specified at `https://example.com/sometree.json`. When no `http[s]` schema is present in the given URL, it automatically assumes it is an `https` schema. If you would like to specify the schema, you can enter it in the URL. For example, `https://galago.czgenepi.org/#/fetch/http://example.com/another/tree/route` would also be valid.
-
 ## Development Process
 
 ```

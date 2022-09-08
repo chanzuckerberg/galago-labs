@@ -67,6 +67,6 @@ const PlausibleInitializer = () => {
     }
   }, []);
   return null;
-}
+};
 
 export default PlausibleInitializer;

@@ -12,7 +12,9 @@
  * to be on, everything else is considered false.
  */
 export function isAppRunningInStaging(): boolean {
-  const RAW_ENV_VAR = import.meta.env.VITE_RUNNING_IN_STAGING as string | undefined;
+  const RAW_ENV_VAR = import.meta.env.VITE_RUNNING_IN_STAGING as
+    | string
+    | undefined;
   const isStagingString = RAW_ENV_VAR || "";
-  return (isStagingString.toLowerCase() === "true");
+  return isStagingString.toLowerCase() === "true";
 }

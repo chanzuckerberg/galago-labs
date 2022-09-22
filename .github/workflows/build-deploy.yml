@@ -1,13 +1,11 @@
 name: Build and Deploy
 
-on: push
-# TODO Return to below, ^^^ just for debugging test
-# # Runs build and deploy whenever main is merged to or pushed to.
-# # (...please don't push directly to main)
-# on:
-#   push:
-#     branches:
-#       - main
+# Runs build and deploy whenever main is merged to or pushed to.
+# (...please don't push directly to main)
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build_and_deploy:

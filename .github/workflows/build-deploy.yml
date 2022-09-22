@@ -1,11 +1,13 @@
 name: Build and Deploy
 
-# Runs build and deploy whenever main is merged to or pushed to.
-# (...please don't push directly to main)
-on:
-  push:
-    branches:
-      - main
+on: push
+# TODO Return to below, ^^^ just for debugging test
+# # Runs build and deploy whenever main is merged to or pushed to.
+# # (...please don't push directly to main)
+# on:
+#   push:
+#     branches:
+#       - main
 
 jobs:
   build_and_deploy:
@@ -28,6 +30,10 @@ jobs:
           echo Setting up Vite env vars file
           echo "$GALAGO_VITE_ENV_VARS" > .env
       - name: Build app
+        # Saw issues with build running out of memory in GitHub Actions
+        # Resolve per https://github.com/actions/runner-images/issues/70
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         # As configured in Aug 2022, `vite build` outputs to `dist` folder.
         run: npm run build
       - name: Deploy to GitHub Pages

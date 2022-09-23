@@ -29,20 +29,19 @@ const SEARCH_PARAM_PREFIX = "galago";
 const ALL_GALAGO_PARAMS = [
   // corresponding URL search param: `galagoPathogen`
   // Must be a key from src/utils/pathogenParameters `pathogenParameters`
-  'pathogen',
+  "pathogen",
   // corresponding URL search param: `galagoMrca`
   // TODO Implement usage of the param downstream in app.
-  'mrca',
+  "mrca",
 ] as const;
 type AllGalagoParams = typeof ALL_GALAGO_PARAMS[number];
 // For actual usage downstream in app, we provide an object with the params as
 // keys, with the string value it had or `undefined` if not represented in URL.
-export type GalagoParams = Partial<Record<AllGalagoParams, string>>
+export type GalagoParams = Partial<Record<AllGalagoParams, string>>;
 // Helper to do internal name to URL search param: `fooBar` => `galagoFooBar`
 const internalToSearchParam = (param: string): string => {
   return SEARCH_PARAM_PREFIX + param.charAt(0).toUpperCase() + param.slice(1);
 };
-
 
 interface ExtractedSearchParams {
   galagoParams: GalagoParams;
@@ -56,9 +55,12 @@ interface ExtractedSearchParams {
  * and also returns whatever portion of the URL search string was unused so
  * it can go back into being used as part of the fetch targetUrl.
  */
-function extractSearchParams(searchString: string | undefined): ExtractedSearchParams {
+function extractSearchParams(
+  searchString: string | undefined
+): ExtractedSearchParams {
   const galagoParams: ExtractedSearchParams["galagoParams"] = {};
-  if (!searchString) { // There was no search portion. Just return defaults.
+  if (!searchString) {
+    // There was no search portion. Just return defaults.
     return {
       galagoParams,
       remainingSearchString: "",
@@ -73,7 +75,7 @@ function extractSearchParams(searchString: string | undefined): ExtractedSearchP
       galagoParams[internalParam] = paramValue;
       searchParams.delete(searchParamName);
     }
-  })
+  });
   // At this point, whatever remains in `searchParams` was not for Galago's use
   // If we used all of the search params, this will be an empty string.
   const remainingSearchString = searchParams.toString();
@@ -82,7 +84,6 @@ function extractSearchParams(searchString: string | undefined): ExtractedSearchP
     remainingSearchString,
   };
 }
-
 
 /**
  * If passed string does not have an http(s) schema already, prefix with https.
@@ -103,7 +104,6 @@ function schemifyUrl(rawUrl: string): string {
   }
   return result;
 }
-
 
 interface TargetUrlAndParams {
   targetUrl: string; // Full URL for where we should go get JSON data
@@ -170,7 +170,8 @@ export function getTargetUrlAndParams(): TargetUrlAndParams {
   // We must handle the `?` splitting manually as `location.search` won't work
   // due to majority of URL being behind `#` (b/c HashRouter for GitHub Pages).
   const [preSearchUrl, searchString] = fetchTarget.split("?");
-  const { galagoParams, remainingSearchString } = extractSearchParams(searchString);
+  const { galagoParams, remainingSearchString } =
+    extractSearchParams(searchString);
   let targetUrl = preSearchUrl;
   if (remainingSearchString) {
     targetUrl = preSearchUrl + "?" + remainingSearchString;

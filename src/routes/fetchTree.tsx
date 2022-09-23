@@ -33,7 +33,7 @@ import { maxFileSize } from "../utils/dataIngest";
 async function handleDataFetch(
   targetUrl: string,
   galagoParams: GalagoParams,
-  dispatch: Function,
+  dispatch: Function
 ) {
   let response; // Here because of `try` block scope.
   try {
@@ -70,7 +70,7 @@ const FetchTree = () => {
 
   // Fires off when page mounts to handle process of fetching external JSON.
   useEffect(() => {
-    const {targetUrl, galagoParams} = getTargetUrlAndParams();
+    const { targetUrl, galagoParams } = getTargetUrlAndParams();
     if (targetUrl) {
       dispatch({
         type: ACTION_TYPES.FETCH_TREE_DATA_STARTED,

@@ -30,6 +30,7 @@ import {
   pathogenParameters,
 } from "../utils/pathogenParameters";
 import { showErrorDefaults } from "src/utils/errorTypes";
+import { GalagoParams } from "src/utils/fetchData";
 
 const defaultState = {
   samplesOfInterestNames: [], // literally just the names of the samplesOfInterest
@@ -469,9 +470,13 @@ export const global = (state = defaultState, action: any) => {
     }
 
     case ACTION_TYPES.FETCH_TREE_DATA_SUCCEEDED: {
-      // Almost entirely a copy of type "tree file uploaded"
-      // Just adds tracking fetch and auto-open of upload modal
+      // Primarily a copy of type "tree file uploaded", but fetch specific.
+      // Handles query params, auto-open of upload modal, and fetch completion
       const { tree, haveInternalNodeDates, treeTitle } = action.data;
+      const {
+        pathogen: pathogenParam,
+        // mrca: mrcaParam, TODO Uncomment and use when ready to handle
+      } = action.galagoParams as GalagoParams;
       const divisionOptions = get_division_input_options(tree, state.country);
       const treeMetadata = treeMetadataCensus(tree);
       const cladeSliderField = haveInternalNodeDates ? "num_date" : "div";
@@ -491,10 +496,11 @@ export const global = (state = defaultState, action: any) => {
         ),
         cladeSliderField: cladeSliderField,
         cladeSliderValue: formatMrcaSliderOptionValue(tree, cladeSliderField),
-        mrca: tree,
+        mrca: tree, // TODO should be informed by mrcaParam from search params
         metadataCensus: { ...state.metadataCensus, ...treeMetadata },
         // Added portion for Fetch aspect starts here
         uploadModalOpen: true,
+        pathogen: pathogenParam || defaultState.pathogen,
         fetchData: {
           ...state.fetchData,
           fetchInProcess: false,

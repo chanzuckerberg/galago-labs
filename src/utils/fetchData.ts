@@ -4,29 +4,57 @@
 import { ROUTES } from "../routes";
 
 /**
- * VOODOO_TODO__DOC_ME
+ * Galago supports various, optional search (AKA query) params for fetch.
+ *
+ * In addition to specifying a URL for tree data being fetched, the fetch
+ * route supports optional search params to give additional info about the
+ * tree being loaded. For example, `galagoPathogen` can be specified to
+ * set the `pathogen` the tree is dealing with. See `ALL_GALAGO_PARAMS` below
+ * for a list of all the kinds of search params the fetch route supports.
+ *
+ * NOTE: Each parameter has an internal name (eg, `pathogen`) and the name
+ * actually used for its search param (eg, `galagoPathogen`). Every param
+ * listed below is exposed as a search param that will be prefixed with
+ * `galago` and then camel-cased (ex: `fooBar` => `galagoFooBar`). This is
+ * done to prevent any accidental name collisions with other search params
+ * that the targetUrl might rely on, and the galago params will be removed
+ * from the resulting targetUrl search params before we try to fetch data.
+ *
+ * Dev Note: Below would be easier to understand as a lookup dict from internal
+ * to external search params, but TypeScript gets pretty ornery when you try to
+ * rely on the structure of a constant object, so this is the best I could do
+ * for readability while keeping TypeScript happy.
  */
 const SEARCH_PARAM_PREFIX = "galago";
 const ALL_GALAGO_PARAMS = [
-  'pathogen', // corresponding URL search param: `galagoPathogen`
-  'mrca', // corresponding URL search param: `galagoMrca`
+  // corresponding URL search param: `galagoPathogen`
+  // Must be a key from src/utils/pathogenParameters `pathogenParameters`
+  'pathogen',
+  // corresponding URL search param: `galagoMrca`
+  // TODO Implement usage of the param downstream in app.
+  'mrca',
 ] as const;
 type AllGalagoParams = typeof ALL_GALAGO_PARAMS[number];
 // For actual usage downstream in app, we provide an object with the params as
 // keys, with the string value it had or `undefined` if not represented in URL.
-type GalagoParams = Partial<Record<AllGalagoParams, string>>
+export type GalagoParams = Partial<Record<AllGalagoParams, string>>
 // Helper to do internal name to URL search param: `fooBar` => `galagoFooBar`
 const internalToSearchParam = (param: string): string => {
   return SEARCH_PARAM_PREFIX + param.charAt(0).toUpperCase() + param.slice(1);
 };
 
+
 interface ExtractedSearchParams {
   galagoParams: GalagoParams;
   remainingSearchString: string;
 }
-
 /**
- * VOODOO_TODO__DOC_ME
+ * Extract search params used by Galago. Returns them and any unused params.
+ *
+ * See above for all the search (AKA, query) params that Galago supports.
+ * This function pulls all the Galago params out, returns them as an object,
+ * and also returns whatever portion of the URL search string was unused so
+ * it can go back into being used as part of the fetch targetUrl.
  */
 function extractSearchParams(searchString: string | undefined): ExtractedSearchParams {
   const galagoParams: ExtractedSearchParams["galagoParams"] = {};
@@ -94,19 +122,20 @@ interface TargetUrlAndParams {
  * path and use that for our data fetch. This is kind of annoying: a lot of
  * path helpers (i.e., what we get from react-router) will ignore certain
  * things, like search params. This is reasonable in most cases, but because
- * of our specific use-case, we want to exactly use what we were given: we do
- * not know how the server we'll be fetching data from expects the URL to be
- * formatted, so we really can't mess with it. We need to use everything.
+ * of our specific use-case, we want to know exactly what we were given.
  *
  * We could get around this with a search param for `fetch` and URI encoding/
  * decoding, but (a) the above `/fetch/` path approach is what Nextstrain is
  * already using and (b) it's harder to explain URI encoding/decoding.
  *
- * We do use search params in our app as well for specifying certain things.
- * This could be a problem due to naming collisions: if the server we need to
- * fetch data depends on a query param with the same name as a query param our
- * app uses, things will get messy. But this is probably very rare, so it's
- * unlikely to be worth addressing.
+ * We use search params in the app for specifying certain things. See above
+ * for more information on what params are available and how to use them.
+ * All search params used by Galago are prefixed by `galago`, so we can be
+ * very confident there will be no name collisions against where we fetch the
+ * data from. As such, we remove all the params used by Galago from the target
+ * URL we will fetch. If any params were not used by Galago, we leave them in
+ * the resulting targetUrl since we expect the server we will be fetching
+ * data from needs those other search params.
  *
  * Finally, note that this function might not play nicely with testing or SSR
  * since it depends on the existence of `window`. Since we don't currently
@@ -137,7 +166,9 @@ export function getTargetUrlAndParams(): TargetUrlAndParams {
     return MALFORMED_FETCH_RETURN_VAL;
   }
 
-  // Separate and handle any search params at end from rest of the fetch URL
+  // Separate and handle any search params at end from rest of the fetch URL.
+  // We must handle the `?` splitting manually as `location.search` won't work
+  // due to majority of URL being behind `#` (b/c HashRouter for GitHub Pages).
   const [preSearchUrl, searchString] = fetchTarget.split("?");
   const { galagoParams, remainingSearchString } = extractSearchParams(searchString);
   let targetUrl = preSearchUrl;

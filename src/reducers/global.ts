@@ -480,6 +480,10 @@ export const global = (state = defaultState, action: any) => {
       const divisionOptions = get_division_input_options(tree, state.country);
       const treeMetadata = treeMetadataCensus(tree);
       const cladeSliderField = haveInternalNodeDates ? "num_date" : "div";
+
+      const lowercasedPathogen = pathogenParam
+        ? pathogenParam.toLowerCase()
+        : "";
       return {
         ...state,
         tree: tree,
@@ -500,7 +504,9 @@ export const global = (state = defaultState, action: any) => {
         metadataCensus: { ...state.metadataCensus, ...treeMetadata },
         // Added portion for Fetch aspect starts here
         uploadModalOpen: true,
-        pathogen: pathogenParam || defaultState.pathogen,
+        pathogen: Object.keys(pathogenParameters).includes(lowercasedPathogen)
+          ? lowercasedPathogen
+          : "other",
         fetchData: {
           ...state.fetchData,
           fetchInProcess: false,

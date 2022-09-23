@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import axios from "axios";
-import { getUrlToFetch } from "../utils/fetchData";
+import { getTargetUrlAndParams } from "../utils/fetchData";
 import LandingPageRoute from "./landingPageRoute";
 import { ACTION_TYPES } from "../reducers/actionTypes";
 import {

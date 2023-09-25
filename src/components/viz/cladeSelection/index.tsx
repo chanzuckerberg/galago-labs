@@ -13,6 +13,7 @@ import CladeSelectionVizControls from "./cladeSelectionVizControls";
 import CladeSelectionVizLegend from "./scatterplotLegend";
 import { Theme } from "../../../theme";
 import { timeFormat } from "d3-time-format";
+import PackLayout from "../packLayout";
 
 type CladeSelectionVizProps = {
   chartHeight: number;
@@ -174,7 +175,12 @@ export const CladeSelectionViz = (props: CladeSelectionVizProps) => {
         <CladeSelectionVizControls sectionWidth={chartWidth} />
       </div>
       <div>
-        <svg
+        <PackLayout
+          width={chartWidth}
+          height={scatterplotHeight}
+          margin={chartMargin}
+        />
+        {/* <svg
           width={chartWidth}
           height={scatterplotHeight}
           style={{ border: showLayoutBorders ? "1px solid orange" : "none" }}
@@ -204,7 +210,7 @@ export const CladeSelectionViz = (props: CladeSelectionVizProps) => {
               timeFormat(smallWindow ? "%y-%m" : "%Y-%m")(tick)
             }
           />
-        </svg>
+        </svg> */}
       </div>
     </div>
   );

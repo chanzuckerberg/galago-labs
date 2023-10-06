@@ -113,7 +113,7 @@ export default function App() {
           width: windowWidth,
           height: 20,
           position: "absolute",
-          bottom: 10,
+          bottom: 0,
         }}
       >
         <LittleFoot />

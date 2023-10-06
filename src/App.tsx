@@ -110,7 +110,9 @@ export default function App() {
       </div>
       <div
         style={{
-          width: windowWidth,
+          width: "100%",
+          margin: 0,
+          padding: 0,
           left: 0,
           height: 20,
           bottom: 10,

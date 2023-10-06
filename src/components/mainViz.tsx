@@ -52,9 +52,9 @@ export const MainViz = (props: MainVizProps) => {
           />
         ) : (
           <CladeSelectionViz
-            chartHeight={chartHeight}
-            chartWidth={chartWidth}
-            chartMargin={chartMargin}
+            height={chartHeight}
+            width={chartWidth}
+            margin={chartMargin}
           />
         )}
       </div>

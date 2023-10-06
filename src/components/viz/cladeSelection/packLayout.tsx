@@ -6,6 +6,7 @@ import { Pack, hierarchy } from "@visx/hierarchy";
 import { Node } from "src/d";
 import PackLayoutTooltip from "./packLayoutTooltip";
 import { HierarchyCircularNode } from "d3";
+import { get_dist } from "src/utils/treeMethods";
 
 type PackLayoutProps = {
   width: number;
@@ -18,93 +19,104 @@ const PackLayout = ({ width, height, margin }: PackLayoutProps) => {
   const state = useSelector((state) => state.global);
   const dispatch = useDispatch();
 
-  const [hoveredCircle, setHoveredCircle] =
+  const [hoveredSample, setHoveredSample] =
     useState<HierarchyCircularNode<Node> | null>(null);
 
-  // const checkIfCurrentMrcaSample = (sample: Node) => {
-  //   if (!state.mrca) {
-  //     return false;
-  //   }
+  const checkIfSampleOfInterest = (sample: HierarchyCircularNode<Node>) => {
+    return state.samplesOfInterestNames.includes(sample.data.name);
+  };
 
-  //   const currentMrcaSampleNames =
-  //     state.cladeDescription.unselected_samples_in_cluster
-  //       .concat(state.cladeDescription.selected_samples)
-  //       .map((n: Node) => n.name);
-  //   return currentMrcaSampleNames.includes(sample.name);
-  // };
+  const checkIfInternal = (sample: HierarchyCircularNode<Node>) => {
+    return sample.children !== undefined && sample.children.length > 0;
+  };
 
-  // const plotSampleOfInterest = (sample: Node, isCurrentMrcaSample: boolean) => {
-  //   const color = isCurrentMrcaSample ? Theme.palette.primary : "black";
-  //   const strokeWidth = isCurrentMrcaSample ? 3 : 1;
+  // min n transmissions bn samples: color
+  const colorScale = {
+    0: Theme.palette.primary.main,
+    1: Theme.palette.primary.light,
+    // @ts-expect-error
+    2: Theme.palette.primary.lighter,
+  };
 
-  //   return (
-  //     <g
-  //       transform={`translate(
-  //     ${_xScaleTime(sample.node_attrs.num_date.value)},
-  //     ${_yMutsScale(sample.node_attrs.div)}
-  //   )`}
-  //       key={`sampleOfInterestGroup-${uuid()}`}
-  //     >
-  //       <line
-  //         x1="-6"
-  //         y1="0"
-  //         x2="6"
-  //         y2="0"
-  //         stroke={Theme.palette.primary.main} //getMetadataColor(sample)}
-  //         strokeWidth={strokeWidth}
-  //         key={`sampleOfInterest-${uuid()}`}
-  //       />
-  //       <line
-  //         x1="0"
-  //         y1="-6"
-  //         x2="0"
-  //         y2="6"
-  //         stroke={Theme.palette.primary.main} //getMetadataColor(sample)}
-  //         strokeWidth={strokeWidth}
-  //         key={`sampleOfInterest-${uuid()}`}
-  //       />
-  //     </g>
-  //   );
-  // };
+  const getColor = (node: HierarchyCircularNode<Node>) => {
+    const nMuts = get_dist([node.data, state.mrca]);
+    const threshold = state.mutsPerTransmissionMax;
+    if (nMuts === 0) {
+      return colorScale[0];
+    } else if (nMuts <= threshold * 2) {
+      return colorScale[1];
+    } else {
+      return colorScale[2];
+    }
+  };
 
-  // const plotOtherSample = (sample: Node, isCurrentMrcaSample: boolean) => {
-  //   let radius, strokeWidth, color;
+  const plotSampleOfInterest = (sample: HierarchyCircularNode<Node>) => {
+    const color = getColor(sample);
 
-  //   if (isCurrentMrcaSample) {
-  //     radius = 3;
-  //     strokeWidth = 1;
-  //     color = Theme.palette.primary.light;
-  //   } else {
-  //     radius = 2.5;
-  //     strokeWidth = 0;
-  //     color = Theme.palette.secondary.light;
-  //   }
+    return (
+      <rect
+        x={sample.x - sample.r / 1.5}
+        y={sample.y - sample.r / 1.5}
+        width={1.5 * sample.r}
+        height={1.5 * sample.r}
+        fill={color}
+        key={`node-${sample.data.name}`}
+        stroke={Theme.palette.secondary.dark}
+        strokeWidth={2}
+        // opacity={0.95}
+        // onMouseMove={() => {
+        //   tooltip.showTooltip({
+        //     tooltipData: tipsRepresented(node),
+        //     tooltipLeft: x,
+        //     tooltipTop: y,
+        //   });
+        // }}
+        // onMouseLeave={() => {
+        //   tooltip.hideTooltip();
+        // }}
+      />
+    );
+  };
 
-  //   return (
-  //     <circle
-  //       key={`otherSample-${uuid()}`}
-  //       cx={_xScaleTime(sample.node_attrs.num_date.value)}
-  //       cy={_yMutsScale(sample.node_attrs.div)}
-  //       r={radius}
-  //       style={{
-  //         fill: color,
-  //         stroke: Theme.palette.secondary.dark,
-  //         strokeWidth: strokeWidth,
-  //       }}
-  //     />
-  //   );
-  // };
+  const plotOtherSample = (
+    sample: HierarchyCircularNode<Node>,
+    isInternal: boolean
+  ) => {
+    return (
+      <circle
+        key={`circle-${sample.data.name}`}
+        r={sample.r}
+        cx={sample.x}
+        cy={sample.y}
+        fill={isInternal ? "mediumgray" : getColor(sample)}
+        fillOpacity={isInternal ? 0.1 : 1}
+        onClick={() =>
+          dispatch({
+            type: "mrca selected",
+            data:
+              sample.data.node_attrs.tipCount > 0 || sample.parent === null
+                ? sample.data.name
+                : sample.parent.data.name,
+          })
+        }
+        stroke={Theme.palette.secondary.dark}
+        strokeWidth={isInternal ? 0 : 2}
+        onMouseEnter={() => setHoveredSample(sample)}
+        onMouseLeave={() => setHoveredSample(null)}
+      />
+    );
+  };
 
-  // const plotSample = (sample: Node) => {
-  //   const isSampleOfInterest = checkIfSampleOfInterest(sample);
-  //   const isCurrentMrcaSample = checkIfCurrentMrcaSample(sample);
+  const plotSample = (sample: HierarchyCircularNode<Node>) => {
+    const isSampleOfInterest = checkIfSampleOfInterest(sample);
+    const isInternal = checkIfInternal(sample);
 
-  //   if (isSampleOfInterest) {
-  //     return plotSampleOfInterest(sample, isCurrentMrcaSample);
-  //   } else {
-  //     return plotOtherSample(sample, isCurrentMrcaSample);
-  //   }
-  // };
+    if (isInternal || !isSampleOfInterest) {
+      return plotOtherSample(sample, isInternal);
+    } else {
+      return plotSampleOfInterest(sample);
+    }
+  };
 
   const root = hierarchy<Node>(state.mrca, (d) => d.children)
     .count() //(d) => d.node_attrs.tipCount + 1)
@@ -121,39 +133,14 @@ const PackLayout = ({ width, height, margin }: PackLayoutProps) => {
 
       <Pack<Node> root={root} size={[width, height]}>
         {(packData) => {
-          const circles = packData.descendants().slice(2); // skip outer hierarchies
+          const samples = packData.descendants().slice(1); // skip outer hierarchies
           return (
-            <Group>
-              {circles.map((circle, i) => (
-                <circle
-                  key={`circle-${i}`}
-                  r={circle.r}
-                  cx={circle.x}
-                  cy={circle.y}
-                  fill={
-                    circle.data.node_attrs.tipCount > 0
-                      ? "mediumgray"
-                      : Theme.palette.primary.main
-                  }
-                  fillOpacity={circle.data.node_attrs.tipCount > 0 ? 0.1 : 1}
-                  onClick={() =>
-                    dispatch({
-                      type: "mrca selected",
-                      data:
-                        circle.data.node_attrs.tipCount > 0
-                          ? circle.data.name
-                          : circle.parent?.data.name,
-                    })
-                  }
-                  onMouseEnter={() => setHoveredCircle(circle)}
-                  onMouseLeave={() => setHoveredCircle(null)}
-                />
-              ))}
-            </Group>
+            //@ts-expect-error Type 'HierarchyCircularNode<Node>' is missing the following properties from type 'HierarchyCircularNode<Node>': find, [Symbol.iterator]
+            <Group>{samples.map((sample, i) => plotSample(sample))}</Group>
           );
         }}
       </Pack>
-      {hoveredCircle && <PackLayoutTooltip hoveredCircle={hoveredCircle} />}
+      {/* {hoveredSample && <PackLayoutTooltip hoveredSample={hoveredSample} />} */}
     </svg>
   );
 };

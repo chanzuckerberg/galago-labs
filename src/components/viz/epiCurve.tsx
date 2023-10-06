@@ -1,17 +1,12 @@
 import { useSelector } from "react-redux";
-import React, { useState } from "react";
 import { BarStack } from "@visx/shape";
 import { Group } from "@visx/group";
 import { GridRows } from "@visx/grid";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { timeFormat } from "d3-time-format";
-// import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import { LegendOrdinal } from "@visx/legend";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import TimelineIcon from "@mui/icons-material/Timeline";
-import MapIcon from "@mui/icons-material/Map";
+
 import {
   getNodeAttr,
   get_dist,
@@ -99,22 +94,6 @@ export const EpiCurve = (props: EpiCurveProps) => {
       return keys[1];
     } else {
       return keys[2];
-    }
-  };
-
-  const getGeography = (node: Node) => {
-    const nodeLocation = getNodeAttr(node, "location");
-    const nodeDivision = getNodeAttr(node, "division");
-    const nodeCountry = getNodeAttr(node, "country");
-
-    if (nodeLocation === state.location) {
-      return state.location;
-    } else if (nodeDivision === state.division) {
-      return `Other counties in ${state.division}`;
-    } else if (nodeCountry === state.country) {
-      return `Other states in ${state.country}`;
-    } else {
-      return "Other countries";
     }
   };
 

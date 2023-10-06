@@ -111,9 +111,10 @@ export default function App() {
       <div
         style={{
           width: windowWidth,
+          left: 0,
           height: 20,
+          bottom: 10,
           position: "absolute",
-          bottom: 0,
         }}
       >
         <LittleFoot />

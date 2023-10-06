@@ -7,6 +7,7 @@ import { Node } from "src/d";
 import PackLayoutTooltip from "./packLayoutTooltip";
 import { HierarchyCircularNode } from "d3";
 import { get_dist } from "src/utils/treeMethods";
+import CladeSelectionVizLegend from "./cladeSelectionVizLegend";
 
 type PackLayoutProps = {
   width: number;
@@ -61,9 +62,9 @@ const PackLayout = ({ width, height, margin }: PackLayoutProps) => {
         height={1.5 * sample.r}
         fill={color}
         key={`node-${sample.data.name}`}
-        stroke={Theme.palette.secondary.dark}
+        stroke={"black"}
         strokeWidth={2}
-        // opacity={0.95}
+        cursor={"pointer"}
         // onMouseMove={() => {
         //   tooltip.showTooltip({
         //     tooltipData: tipsRepresented(node),
@@ -99,10 +100,11 @@ const PackLayout = ({ width, height, margin }: PackLayoutProps) => {
                 : sample.parent.data.name,
           })
         }
-        stroke={Theme.palette.secondary.dark}
+        stroke={"black"}
         strokeWidth={isInternal ? 0 : 2}
         onMouseEnter={() => setHoveredSample(sample)}
         onMouseLeave={() => setHoveredSample(null)}
+        cursor={"pointer"}
       />
     );
   };
@@ -140,6 +142,7 @@ const PackLayout = ({ width, height, margin }: PackLayoutProps) => {
           );
         }}
       </Pack>
+      <CladeSelectionVizLegend smallWindow={height < 350} />
       {/* {hoveredSample && <PackLayoutTooltip hoveredSample={hoveredSample} />} */}
     </svg>
   );

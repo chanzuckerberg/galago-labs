@@ -8,6 +8,7 @@ type PackLayoutTooltipProps = {
   hoveredCircle: HierarchyCircularNode<Node>;
 };
 const PackLayoutTooltip = ({ hoveredCircle }: PackLayoutTooltipProps) => {
+  // @ts-ignore
   const state = useSelector((state) => state.global);
 
   const getLeafCaption = (leaf: any) => {
